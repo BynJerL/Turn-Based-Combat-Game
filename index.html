@@ -12,8 +12,8 @@
         .character_display {
             display: flex;
             gap: 10px;
-            width: 220px;
-            height: 100px;
+            width: 240px;
+            height: 120px;
             margin: 10px;
             padding: 10px;
             background-color: burlywood;
@@ -114,6 +114,28 @@
             }
         }
 
+        Character.prototype.heal = function(heal_power) {
+            this.current_hp += heal_power;
+
+            if (this.current_hp > this.max_hp) {
+                this.current_hp = this.max_hp;
+            }
+        }
+
+        Character.prototype.useSkill = function(sp_price) {
+            if (this.current_sp >= sp_price) {
+                this.current_sp -= sp_price;
+            }
+        }
+
+        Character.prototype.restoreSp = function(sp_restored) {
+            this.current_sp += sp_restored
+
+            if (this.current_sp > this.max_sp) {
+                this.current_sp = this.max_sp
+            }
+        }
+
         let characters = [
             new Character("Andy", 100, 30, "assets/img/display_1.jpg"),
             new Character("Jack", 120, 20, "assets/img/display_2.jpg"),
@@ -147,15 +169,37 @@
                                         <div class="bar_value">${chara.current_sp}/${chara.max_sp}</div>
                                     </div>
                                 </div>
-                                <button class="damage_button" data-idx="${idx}">Take Damage</button>
+                                <select class="action_select" data-idx="${idx}">
+                                    <option value="take_damage">Take Damage (-10 HP)</option>
+                                    <option value="heal">Heal (+10 HP)</option>
+                                    <option value="use_skill">Use Skill (-5 SP)</option>
+                                    <option value="restore_skill">Restore Skill (+5 SP)</option>
+                                </select>
+                                <button class="apply_button" data-idx="${idx}">Apply</button>
                             </div>
                         </div>`
             ).join('');
 
-            document.querySelectorAll('.damage_button').forEach(button => {
+            document.querySelectorAll('.apply_button').forEach(button => {
                 button.addEventListener('click', function() {
                     const idx = this.getAttribute('data-idx');
-                    characters[idx].takeDamage(10);
+                    const select = document.querySelector(`.action_select[data-idx="${idx}"]`);
+                    const action = select.value;
+                    const chara = characters[idx];
+                    switch (action) {
+                        case "take_damage":
+                            chara.takeDamage(10);
+                            break;
+                        case "heal":
+                            chara.heal(10);
+                            break;
+                        case "use_skill":
+                            chara.useSkill(5);
+                            break;
+                        case "restore_skill":
+                            chara.restoreSp(5);
+                            break;
+                    }
                     renderCharacters();
                 });
             });
