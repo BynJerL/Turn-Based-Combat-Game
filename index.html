@@ -37,6 +37,10 @@
         .health {
             background-color: red;
         }
+
+        .skill {
+            background-color: orange;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +98,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="property_display">SP : ${chara.current_sp}/${chara.max_sp}</div>
+                            <div class="property_display">
+                                <div>SP</div>
+                                <div class="bar">
+                                    <div class="skill" style="width:${100 * chara.current_sp/chara.max_sp}%; height:100%">
+                                        ${chara.current_sp}/${chara.max_sp}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>`
         ).join('');
