@@ -22,7 +22,10 @@
         }
 
         .property_display {
-            display: flex;
+            /* display: flex; */
+            display: grid;
+            grid-template-columns: 20px 100px;
+            margin-bottom: 5px;
             /* background-color: greenyellow; */
             width: 125px;
             gap: 10px;
@@ -31,7 +34,10 @@
         .bar {
             background-color: lightgrey;
             width: 100px;
+            height: 20px;
             border: 1px solid black;
+            position: relative;
+            overflow: hidden;
         }
 
         .health {
@@ -40,6 +46,17 @@
 
         .skill {
             background-color: orange;
+        }
+
+        .health, .skill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            white-space: nowrap;
         }
     </style>
 </head>
