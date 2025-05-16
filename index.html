@@ -141,6 +141,7 @@
             new Character("Jack", 120, 20, "assets/img/display_2.jpg"),
             new Character("Steve", 80, 40, "assets/img/display_1.jpg")
         ]
+        characters.forEach(chara => chara.action = "take_damage");
 
         characters[0].takeDamage(25);
 
@@ -170,15 +171,22 @@
                                     </div>
                                 </div>
                                 <select class="action_select" data-idx="${idx}">
-                                    <option value="take_damage">Take Damage (-10 HP)</option>
-                                    <option value="heal">Heal (+10 HP)</option>
-                                    <option value="use_skill">Use Skill (-5 SP)</option>
-                                    <option value="restore_skill">Restore Skill (+5 SP)</option>
+                                    <option value="take_damage"${chara.action === "take_damage" ? " selected" : ""}>Take Damage (-10 HP)</option>
+                                    <option value="heal"${chara.action === "heal" ? " selected" : ""}>Heal (+10 HP)</option>
+                                    <option value="use_skill"${chara.action === "use_skill" ? " selected" : ""}>Use Skill (-5 SP)</option>
+                                    <option value="restore_skill"${chara.action === "restore_skill" ? " selected" : ""}>Restore Skill (+5 SP)</option>
                                 </select>
                                 <button class="apply_button" data-idx="${idx}">Apply</button>
                             </div>
                         </div>`
             ).join('');
+
+            document.querySelectorAll('.action_select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const idx = this.getAttribute('data-idx');
+                    characters[idx].action = this.value;
+                });
+            });
 
             document.querySelectorAll('.apply_button').forEach(button => {
                 button.addEventListener('click', function() {
