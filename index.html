@@ -10,7 +10,9 @@
         }
 
         .character_display {
-            width: 140px;
+            display: flex;
+            gap: 10px;
+            width: 210px;
             height: 70px;
             margin: 10px;
             padding: 10px;
@@ -24,12 +26,13 @@
     <div id="character_info"></div>
 
     <script>
-        function Character(name, hp, sp) {
+        function Character(name, hp, sp, profile_path) {
             this.name = name;
             this.max_hp = hp;
             this.current_hp = hp;
             this.max_sp = sp;
             this.current_sp = sp;
+            this.profile_path = profile_path
         }
 
         Character.prototype.printInfo = function(){
@@ -41,8 +44,8 @@
         }
 
         let characters = [
-            new Character("Andy", 100, 30),
-            new Character("Jack", 120, 20)
+            new Character("Andy", 100, 30, "assets/img/display_1.jpg"),
+            new Character("Jack", 120, 20, "assets/img/display_1.jpg")
         ]
 
         for (let i = 0; i < characters.length; i++) {
@@ -52,9 +55,12 @@
         const infoDiv = document.getElementById("character_info");
         infoDiv.innerHTML = characters.map(
             chara => `<div class="character_display">
-                    <strong>${chara.name}</strong>
-                    <div>HP : ${chara.current_hp}/${chara.max_hp}</div>
-                    <div>SP : ${chara.current_sp}/${chara.max_sp}</div>
+                        <img src="${chara.profile_path}">
+                        <div>
+                            <strong>${chara.name}</strong>
+                            <div>HP : ${chara.current_hp}/${chara.max_hp}</div>
+                            <div>SP : ${chara.current_sp}/${chara.max_sp}</div>
+                        </div>
                     </div>`
         ).join('');
     </script>
