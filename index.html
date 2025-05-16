@@ -50,12 +50,32 @@
 
         .health, .skill {
             height: 100%;
-            display: flex;
+            display: block;
             align-items: center;
+            position: absolute;
+            left: 0;
+            top: 0;
             justify-content: center;
             color: white;
             font-weight: bold;
             font-size: 0.9em;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .bar_value {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.75em;
+            font-weight: bold;
+            z-index: 2;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
+            width: 100%;
+            text-align: center;
             white-space: nowrap;
         }
     </style>
@@ -95,7 +115,7 @@
             new Character("Steve", 80, 40, "assets/img/display_1.jpg")
         ]
 
-        characters[0].takeDamage(10);
+        characters[0].takeDamage(25);
 
         for (let i = 0; i < characters.length; i++) {
             characters[i].printInfo();
@@ -110,17 +130,15 @@
                             <div class="property_display">
                                 <div>HP</div>
                                 <div class="bar">
-                                    <div class="health" style="width:${100 * chara.current_hp/chara.max_hp}%; height:100%">
-                                        ${chara.current_hp}/${chara.max_hp}
-                                    </div>
+                                    <div class="health" style="width:${100 * chara.current_hp/chara.max_hp}%; height:100%"></div>
+                                    <div class="bar_value">${chara.current_hp}/${chara.max_hp}</div>
                                 </div>
                             </div>
                             <div class="property_display">
                                 <div>SP</div>
                                 <div class="bar">
-                                    <div class="skill" style="width:${100 * chara.current_sp/chara.max_sp}%; height:100%">
-                                        ${chara.current_sp}/${chara.max_sp}
-                                    </div>
+                                    <div class="skill" style="width:${100 * chara.current_sp/chara.max_sp}%; height:100%"></div>
+                                    <div class="bar_value">${chara.current_sp}/${chara.max_sp}</div>
                                 </div>
                             </div>
                         </div>
