@@ -4,8 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turn Based Combat Game - Basic</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .character_display {
+            width: 200px;
+            height: 40px;
+            margin: 10px;
+            padding: 10px;
+            background-color: burlywood;
+            border-radius: 5px;
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
+    <div id="character_info"></div>
+
     <script>
         function Character(name, hp) {
             this.name = name;
@@ -17,8 +34,9 @@
             console.log(`${this.name} (HP: ${this.current_hp}/${this.max_hp})`);
         }
 
-        // let a_chara = new Character("Andy", 100);
-        // a_chara.printInfo();
+        Character.prototype.getInfo = function(){
+            return `${this.name} (HP: ${this.current_hp}/${this.max_hp})`;
+        }
 
         let characters = [
             new Character("Andy", 100),
@@ -28,6 +46,9 @@
         for (let i = 0; i < characters.length; i++) {
             characters[i].printInfo();
         }
+
+        const infoDiv = document.getElementById("character_info");
+        infoDiv.innerHTML = characters.map(chara => `<div class="character_display">${chara.getInfo()}</div>`).join('');
     </script>
 </body>
 </html>
