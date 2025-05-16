@@ -10,8 +10,8 @@
         }
 
         .character_display {
-            width: 200px;
-            height: 40px;
+            width: 140px;
+            height: 70px;
             margin: 10px;
             padding: 10px;
             background-color: burlywood;
@@ -24,10 +24,12 @@
     <div id="character_info"></div>
 
     <script>
-        function Character(name, hp) {
+        function Character(name, hp, sp) {
             this.name = name;
             this.max_hp = hp;
             this.current_hp = hp;
+            this.max_sp = sp;
+            this.current_sp = sp;
         }
 
         Character.prototype.printInfo = function(){
@@ -39,8 +41,8 @@
         }
 
         let characters = [
-            new Character("Andy", 100),
-            new Character("Jack", 120)
+            new Character("Andy", 100, 30),
+            new Character("Jack", 120, 20)
         ]
 
         for (let i = 0; i < characters.length; i++) {
@@ -48,7 +50,13 @@
         }
 
         const infoDiv = document.getElementById("character_info");
-        infoDiv.innerHTML = characters.map(chara => `<div class="character_display">${chara.getInfo()}</div>`).join('');
+        infoDiv.innerHTML = characters.map(
+            chara => `<div class="character_display">
+                    <strong>${chara.name}</strong>
+                    <div>HP : ${chara.current_hp}/${chara.max_hp}</div>
+                    <div>SP : ${chara.current_sp}/${chara.max_sp}</div>
+                    </div>`
+        ).join('');
     </script>
 </body>
 </html>
