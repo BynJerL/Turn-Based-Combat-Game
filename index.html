@@ -12,13 +12,17 @@
         .character_display {
             display: flex;
             gap: 10px;
-            width: 210px;
+            width: 300px;
             height: 70px;
             margin: 10px;
             padding: 10px;
             background-color: burlywood;
             border-radius: 5px;
             border: 1px solid black;
+        }
+
+        .profile_picture {
+            width: 70px;
         }
 
         .property_display {
@@ -111,7 +115,7 @@
 
         let characters = [
             new Character("Andy", 100, 30, "assets/img/display_1.jpg"),
-            new Character("Jack", 120, 20, "assets/img/display_1.jpg"),
+            new Character("Jack", 120, 20, "assets/img/display_2.jpg"),
             new Character("Steve", 80, 40, "assets/img/display_1.jpg")
         ]
 
@@ -124,7 +128,7 @@
         const infoDiv = document.getElementById("character_info");
         infoDiv.innerHTML = characters.map(
             chara => `<div class="character_display">
-                        <img src="${chara.profile_path}">
+                        <img src="${chara.profile_path}" class="profile_picture">
                         <div>
                             <strong>${chara.name}</strong>
                             <div class="property_display">
