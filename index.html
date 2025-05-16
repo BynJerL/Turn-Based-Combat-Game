@@ -12,7 +12,7 @@
         .character_display {
             display: flex;
             gap: 10px;
-            width: 240px;
+            width: 250px;
             height: 120px;
             margin: 10px;
             padding: 10px;
@@ -22,14 +22,17 @@
         }
 
         .profile_picture {
+            border: 1px solid;
             width: 75px;
             height: 75px;
+            aspect-ratio: 1/1;
+            object-fit: cover;
         }
 
         .property_display {
             /* display: flex; */
             display: grid;
-            grid-template-columns: 20px 100px;
+            grid-template-columns: 20px 125px;
             margin-bottom: 5px;
             /* background-color: greenyellow; */
             width: 125px;
@@ -38,7 +41,7 @@
 
         .bar {
             background-color: lightgrey;
-            width: 100px;
+            width: 125px;
             height: 20px;
             border: 1px solid black;
             position: relative;
