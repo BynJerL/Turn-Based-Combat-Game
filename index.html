@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn Based Combat Game - Basic</title>
+</head>
+<body>
+    <script>
+        function Character(name, hp) {
+            this.name = name;
+            this.max_hp = hp;
+            this.current_hp = hp;
+        }
+
+        Character.prototype.printInfo = function(){
+            console.log(`${this.name} (HP: ${this.current_hp}/${this.max_hp})`);
+        }
+
+        // let a_chara = new Character("Andy", 100);
+        // a_chara.printInfo();
+
+        let characters = [
+            new Character("Andy", 100),
+            new Character("Jack", 120)
+        ]
+
+        for (let i = 0; i < characters.length; i++) {
+            characters[i].printInfo();
+        }
+    </script>
+</body>
+</html>
