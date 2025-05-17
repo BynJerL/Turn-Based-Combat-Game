@@ -176,7 +176,7 @@
         let characters = [
             new Character("Andy", 100, 30, "assets/img/display_1.jpg", [fireball]),
             new Character("Jack", 120, 20, "assets/img/display_2.jpg", [demon_fang]),
-            new Character("Steve", 80, 40, "assets/img/display_1.jpg", [water_dragon, stone_wall])
+            new Character("Steve", 80, 40, "assets/img/display_3.jpeg", [water_dragon, stone_wall])
         ]
         characters.forEach(chara => chara.action = "take_damage");
 
@@ -228,6 +228,13 @@
                     </div>`}
             ).join('');
 
+            const allKOed = characters.every(chara => !chara.is_alive);
+            if (allKOed) {
+                setTimeout(() => {
+                    alert("All characters are K.O.-ed!");
+                }, 100);
+            }
+
             document.querySelectorAll('.action_select').forEach(select => {
                 select.addEventListener('change', function() {
                     const idx = this.getAttribute('data-idx');
@@ -258,18 +265,13 @@
                                     chara.heal(10);
                                 }
                                 break;
-                            case "use_skill":
-                                if (chara.is_alive) {
-                                    chara.useSkill(5);
-                                }
-                                break;
                             case "restore_skill":
                                 if (chara.is_alive) {
                                     chara.restoreSp(5);
                                 }
                                 break;
                             case "revive":
-                                if (!chara.is_alive){
+                                if (!chara.is_alive && !allKOed){
                                     chara.revive();
                                 }
                                 break;
