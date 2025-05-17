@@ -12,7 +12,7 @@
         .character_display {
             display: flex;
             gap: 10px;
-            width: 250px;
+            width: 270px;
             height: 120px;
             margin: 10px;
             padding: 10px;
@@ -90,13 +90,17 @@
         .grayscale {
             filter: grayscale(100%) brightness(60%);
         }
+
+        .action_select {
+            width: 180px;
+        }
     </style>
 </head>
 <body>
     <div id="character_info"></div>
 
     <script>
-        function Character(name, hp, sp, profile_path) {
+        function Character(name, hp, sp, profile_path, skills) {
             this.name = name;
             this.max_hp = hp;
             this.current_hp = hp;
@@ -104,6 +108,7 @@
             this.current_sp = sp;
             this.profile_path = profile_path
             this.is_alive = true;
+            this.skills = skills
         }
 
         Character.prototype.printInfo = function(){
@@ -150,10 +155,28 @@
             this.heal(hp_restored);
         }
 
+        function Skill(name, cost) {
+            this.name = name;
+            this.cost = cost;
+        }
+
+        Skill.prototype.getName = function() {
+            return this.name;
+        }
+
+        Skill.prototype.getCost = function() {
+            return this.cost;
+        }
+
+        let fireball = new Skill("Fireball", 5);
+        let stone_wall = new Skill("Stone Wall", 6);
+        let water_dragon = new Skill("Water Dragon", 15);
+        let demon_fang = new Skill("Demon Fang", 4); 
+
         let characters = [
-            new Character("Andy", 100, 30, "assets/img/display_1.jpg"),
-            new Character("Jack", 120, 20, "assets/img/display_2.jpg"),
-            new Character("Steve", 80, 40, "assets/img/display_1.jpg")
+            new Character("Andy", 100, 30, "assets/img/display_1.jpg", [fireball]),
+            new Character("Jack", 120, 20, "assets/img/display_2.jpg", [demon_fang]),
+            new Character("Steve", 80, 40, "assets/img/display_1.jpg", [water_dragon, stone_wall])
         ]
         characters.forEach(chara => chara.action = "take_damage");
 
@@ -166,34 +189,43 @@
         function renderCharacters() {
             const infoDiv = document.getElementById("character_info");
             infoDiv.innerHTML = characters.map(
-                (chara, idx) => `<div class="character_display">
-                            <img src="${chara.profile_path}" class="profile_picture${chara.is_alive ? '' : ' grayscale'}">
-                            <div>
-                                <strong>${chara.name}</strong>
-                                <div class="property_display">
-                                    <div>HP</div>
-                                    <div class="bar">
-                                        <div class="health" style="width:${100 * chara.current_hp/chara.max_hp}%; height:100%"></div>
-                                        <div class="bar_value">${chara.current_hp}/${chara.max_hp}</div>
-                                    </div>
+                (chara, idx) => {
+                    let skillOptions = "";
+                    if (chara.skills && chara.skills.length > 0) {
+                        skillOptions = chara.skills.map((skill, sidx) => 
+                        `<option value="use_skill_${sidx}"${chara.action === `use_skill_${sidx}` ? " selected" : ""}>
+                            Use ${skill.name} (-${skill.cost} SP)
+                        </option>`
+                        ).join('');
+                    }
+                    return `<div class="character_display">
+                        <img src="${chara.profile_path}" class="profile_picture${chara.is_alive ? '' : ' grayscale'}">
+                        <div>
+                            <strong>${chara.name}</strong>
+                            <div class="property_display">
+                                <div>HP</div>
+                                <div class="bar">
+                                    <div class="health" style="width:${100 * chara.current_hp/chara.max_hp}%; height:100%"></div>
+                                    <div class="bar_value">${chara.current_hp}/${chara.max_hp}</div>
                                 </div>
-                                <div class="property_display">
-                                    <div>SP</div>
-                                    <div class="bar">
-                                        <div class="skill" style="width:${100 * chara.current_sp/chara.max_sp}%; height:100%"></div>
-                                        <div class="bar_value">${chara.current_sp}/${chara.max_sp}</div>
-                                    </div>
-                                </div>
-                                <select class="action_select" data-idx="${idx}">
-                                    <option value="take_damage"${chara.action === "take_damage" ? " selected" : ""}>Take Damage (-10 HP)</option>
-                                    <option value="heal"${chara.action === "heal" ? " selected" : ""}>Heal (+10 HP)</option>
-                                    <option value="use_skill"${chara.action === "use_skill" ? " selected" : ""}>Use Skill (-5 SP)</option>
-                                    <option value="restore_skill"${chara.action === "restore_skill" ? " selected" : ""}>Restore Skill (+5 SP)</option>
-                                    <option value="revive"${chara.action === "revive" ? " selected" : ""}>Revive (+1 HP)</option>
-                                </select>
-                                <button class="apply_button" data-idx="${idx}">Apply</button>
                             </div>
-                        </div>`
+                            <div class="property_display">
+                                <div>SP</div>
+                                <div class="bar">
+                                    <div class="skill" style="width:${100 * chara.current_sp/chara.max_sp}%; height:100%"></div>
+                                    <div class="bar_value">${chara.current_sp}/${chara.max_sp}</div>
+                                </div>
+                            </div>
+                            <select class="action_select" data-idx="${idx}">
+                                <option value="take_damage"${chara.action === "take_damage" ? " selected" : ""}>Take Damage (-10 HP)</option>
+                                <option value="heal"${chara.action === "heal" ? " selected" : ""}>Heal (+10 HP)</option>
+                                ${skillOptions}
+                                <option value="restore_skill"${chara.action === "restore_skill" ? " selected" : ""}>Restore Skill (+5 SP)</option>
+                                <option value="revive"${chara.action === "revive" ? " selected" : ""}>Revive (+1 HP)</option>
+                            </select>
+                            <button class="apply_button" data-idx="${idx}">Apply</button>
+                        </div>
+                    </div>`}
             ).join('');
 
             document.querySelectorAll('.action_select').forEach(select => {
@@ -209,30 +241,39 @@
                     const select = document.querySelector(`.action_select[data-idx="${idx}"]`);
                     const action = select.value;
                     const chara = characters[idx];
-                    switch (action) {
-                        case "take_damage":
-                            chara.takeDamage(10);
-                            break;
-                        case "heal":
-                            if (chara.is_alive) {
-                                chara.heal(10);
-                            }
-                            break;
-                        case "use_skill":
-                            if (chara.is_alive) {
-                                chara.useSkill(5);
-                            }
-                            break;
-                        case "restore_skill":
-                            if (chara.is_alive) {
-                                chara.restoreSp(5);
-                            }
-                            break;
-                        case "revive":
-                            if (!chara.is_alive){
-                                chara.revive();
-                            }
-                            break;
+                    
+                    if (action.startsWith("use_skill_")) {
+                        const skillIdx = parseInt(action.replace("use_skill_",""));
+                        const skill = chara.skills[skillIdx];
+                        if (chara.is_alive && skill) {
+                            chara.useSkill(skill.getCost());
+                        }
+                    } else {
+                        switch (action) {
+                            case "take_damage":
+                                chara.takeDamage(10);
+                                break;
+                            case "heal":
+                                if (chara.is_alive) {
+                                    chara.heal(10);
+                                }
+                                break;
+                            case "use_skill":
+                                if (chara.is_alive) {
+                                    chara.useSkill(5);
+                                }
+                                break;
+                            case "restore_skill":
+                                if (chara.is_alive) {
+                                    chara.restoreSp(5);
+                                }
+                                break;
+                            case "revive":
+                                if (!chara.is_alive){
+                                    chara.revive();
+                                }
+                                break;
+                        }
                     }
                     renderCharacters();
                 });
