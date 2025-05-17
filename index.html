@@ -86,6 +86,10 @@
             text-align: center;
             white-space: nowrap;
         }
+
+        .grayscale {
+            filter: grayscale(100%) brightness(60%);
+        }
     </style>
 </head>
 <body>
@@ -99,6 +103,7 @@
             this.max_sp = sp;
             this.current_sp = sp;
             this.profile_path = profile_path
+            this.is_alive = true;
         }
 
         Character.prototype.printInfo = function(){
@@ -114,6 +119,7 @@
             
             if (this.current_hp <= 0) {
                 this.current_hp = 0;
+                this.is_alive = false;
             }
         }
 
@@ -156,7 +162,7 @@
             const infoDiv = document.getElementById("character_info");
             infoDiv.innerHTML = characters.map(
                 (chara, idx) => `<div class="character_display">
-                            <img src="${chara.profile_path}" class="profile_picture">
+                            <img src="${chara.profile_path}" class="profile_picture${chara.is_alive ? '' : ' grayscale'}">
                             <div>
                                 <strong>${chara.name}</strong>
                                 <div class="property_display">
@@ -202,13 +208,19 @@
                             chara.takeDamage(10);
                             break;
                         case "heal":
-                            chara.heal(10);
+                            if (chara.is_alive) {
+                                chara.heal(10);
+                            }
                             break;
                         case "use_skill":
-                            chara.useSkill(5);
+                            if (chara.is_alive) {
+                                chara.useSkill(5);
+                            }
                             break;
                         case "restore_skill":
-                            chara.restoreSp(5);
+                            if (chara.is_alive) {
+                                chara.restoreSp(5);
+                            }
                             break;
                     }
                     renderCharacters();
