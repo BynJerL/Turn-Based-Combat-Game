@@ -145,6 +145,11 @@
             }
         }
 
+        Character.prototype.revive = function(hp_restored = 1) {
+            this.is_alive = true;
+            this.heal(hp_restored);
+        }
+
         let characters = [
             new Character("Andy", 100, 30, "assets/img/display_1.jpg"),
             new Character("Jack", 120, 20, "assets/img/display_2.jpg"),
@@ -184,6 +189,7 @@
                                     <option value="heal"${chara.action === "heal" ? " selected" : ""}>Heal (+10 HP)</option>
                                     <option value="use_skill"${chara.action === "use_skill" ? " selected" : ""}>Use Skill (-5 SP)</option>
                                     <option value="restore_skill"${chara.action === "restore_skill" ? " selected" : ""}>Restore Skill (+5 SP)</option>
+                                    <option value="revive"${chara.action === "revive" ? " selected" : ""}>Revive (+1 HP)</option>
                                 </select>
                                 <button class="apply_button" data-idx="${idx}">Apply</button>
                             </div>
@@ -220,6 +226,11 @@
                         case "restore_skill":
                             if (chara.is_alive) {
                                 chara.restoreSp(5);
+                            }
+                            break;
+                        case "revive":
+                            if (!chara.is_alive){
+                                chara.revive();
                             }
                             break;
                     }
