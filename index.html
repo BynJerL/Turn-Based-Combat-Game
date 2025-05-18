@@ -86,6 +86,7 @@
             font-size: 0.9em;
             white-space: nowrap;
             z-index: 1;
+            transition: width 0.4s;
         }
 
         .bar_value {
@@ -120,8 +121,10 @@
         function Character(name, hp, sp, profile_path, skills) {
             this.name = name;
             this.max_hp = hp;
+            this.last_hp = hp;
             this.current_hp = hp;
             this.max_sp = sp;
+            this.last_sp = sp;
             this.current_sp = sp;
             this.profile_path = profile_path
             this.is_alive = true;
@@ -137,6 +140,7 @@
         }
 
         Character.prototype.takeDamage = function(damage) {
+            this.last_hp = this.current_hp;
             this.current_hp -= damage;
             
             if (this.current_hp <= 0) {
@@ -146,6 +150,7 @@
         }
 
         Character.prototype.heal = function(heal_power) {
+            this.last_hp = this.current_hp;
             this.current_hp += heal_power;
 
             if (this.current_hp > this.max_hp) {
@@ -154,12 +159,15 @@
         }
 
         Character.prototype.useSkill = function(sp_price) {
+            this.last_sp = this.current_sp;
+
             if (this.current_sp >= sp_price) {
                 this.current_sp -= sp_price;
             }
         }
 
         Character.prototype.restoreSp = function(sp_restored) {
+            this.last_sp = this.current_sp;
             this.current_sp += sp_restored
 
             if (this.current_sp > this.max_sp) {
@@ -222,14 +230,14 @@
                             <div class="property_display">
                                 <div class="property_name">HP</div>
                                 <div class="bar">
-                                    <div class="health" style="width:${100 * chara.current_hp/chara.max_hp}%; height:100%"></div>
+                                    <div class="health" style="width:${100 * chara.last_hp/chara.max_hp}%; height:100%"></div>
                                     <div class="bar_value">${chara.current_hp}/${chara.max_hp}</div>
                                 </div>
                             </div>
                             <div class="property_display">
                                 <div class="property_name">SP</div>
                                 <div class="bar">
-                                    <div class="skill" style="width:${100 * chara.current_sp/chara.max_sp}%; height:100%"></div>
+                                    <div class="skill" style="width:${100 * chara.last_sp/chara.max_sp}%; height:100%"></div>
                                     <div class="bar_value">${chara.current_sp}/${chara.max_sp}</div>
                                 </div>
                             </div>
@@ -244,6 +252,20 @@
                         </div>
                     </div>`}
             ).join('');
+
+            setTimeout(() => {
+                    characters.forEach((chara, idx) => {
+                        const hpBar = document.querySelectorAll('.health')[idx];
+                        if (hpBar) {
+                            hpBar.style.width = (100 * chara.current_hp / chara.max_hp) + "%";
+                        }
+
+                        const spBar = document.querySelectorAll('.skill')[idx];
+                        if (spBar) {
+                            spBar.style.width = (100 * chara.current_sp / chara.max_sp) + "%";
+                        }
+                    });
+                }, 10);
 
             const allKOed = characters.every(chara => !chara.is_alive);
             if (allKOed) {
