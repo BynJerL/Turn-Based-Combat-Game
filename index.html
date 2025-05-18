@@ -347,8 +347,10 @@
                                 }
                                 break;
                             case "kill":
-                                chara.takeDamage(chara.current_hp);
-                                playSFX('sfx_death');
+                                if (chara.is_alive) {
+                                    chara.takeDamage(chara.current_hp);
+                                    playSFX('sfx_death');
+                                }
                                 break;
                         }
                     }
