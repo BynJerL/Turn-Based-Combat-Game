@@ -211,6 +211,15 @@
             characters[i].printInfo();
         }
 
+        function syncLastValues(exceptIdx = null) {
+            characters.forEach((chara, idx) => {
+                if (idx !== exceptIdx) {
+                    chara.last_hp = chara.current_hp;
+                    chara.last_sp = chara.current_sp;
+                }
+            });
+        }
+
         function renderCharacters() {
             const infoDiv = document.getElementById("character_info");
             infoDiv.innerHTML = characters.map(
@@ -288,6 +297,8 @@
                     const action = select.value;
                     const chara = characters[idx];
                     
+                    syncLastValues(idx);
+
                     if (action.startsWith("use_skill_")) {
                         const skillIdx = parseInt(action.replace("use_skill_",""));
                         const skill = chara.skills[skillIdx];
