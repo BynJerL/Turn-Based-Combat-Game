@@ -256,6 +256,7 @@
                                 ${skillOptions}
                                 <option value="restore_skill"${chara.action === "restore_skill" ? " selected" : ""}>Restore Skill (+5 SP)</option>
                                 <option value="revive"${chara.action === "revive" ? " selected" : ""}>Revive (+1 HP)</option>
+                                <option value="kill"${chara.action === "kill" ? " selected" : ""}>Terminate</option>
                             </select>
                             <button class="apply_button" data-idx="${idx}">Apply</button>
                         </div>
@@ -324,6 +325,9 @@
                                 if (!chara.is_alive && !allKOed){
                                     chara.revive();
                                 }
+                                break;
+                            case "kill":
+                                chara.takeDamage(chara.current_hp);
                                 break;
                         }
                     }
