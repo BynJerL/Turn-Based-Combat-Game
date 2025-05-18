@@ -115,6 +115,8 @@
     </style>
 </head>
 <body>
+    <audio id="sfx_hit" src="assets/sfx/hit.mp3"></audio>
+    <audio id="sfx_death" src="assets/sfx/death.mp3"></audio>
     <div id="character_info"></div>
 
     <script>
@@ -209,6 +211,16 @@
 
         for (let i = 0; i < characters.length; i++) {
             characters[i].printInfo();
+        }
+
+        function playSFX(id) {
+            const audio = document.getElementById(id);
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.volume = 1;
+                audio.play();
+            }
         }
 
         function syncLastValues(exceptIdx = null) {
@@ -309,7 +321,15 @@
                     } else {
                         switch (action) {
                             case "take_damage":
-                                chara.takeDamage(10);
+                                if (chara.is_alive) {
+                                    chara.takeDamage(10);
+
+                                    if (!chara.is_alive) {
+                                        playSFX('sfx_death');
+                                    } else {
+                                        playSFX('sfx_hit');
+                                    }
+                                }
                                 break;
                             case "heal":
                                 if (chara.is_alive) {
@@ -328,6 +348,7 @@
                                 break;
                             case "kill":
                                 chara.takeDamage(chara.current_hp);
+                                playSFX('sfx_death');
                                 break;
                         }
                     }
@@ -336,8 +357,24 @@
             });
         }
 
+        window.addEventListener('DOMContentLoaded', () => {
+            ['sfx_hit', 'sfx_death'].forEach(id => {
+                const audio = document.getElementById(id);
+                if (audio) {
+                    audio.volume = 0;
+                    audio.play().then(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.volume = 1;
+                    }).catch(() => {
+                    });
+                }
+            });
+        });
+
         syncLastValues();
         renderCharacters();
+        
     </script>
 </body>
 </html>
