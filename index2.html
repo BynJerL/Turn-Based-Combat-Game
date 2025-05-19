@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="turn_display"></div>
+    <div id="allied_team_display"></div>
+    <div id="enemy_team_display"></div>
+
+    <script>
+        class Character {
+            constructor (name, hp, sp, attack, defense, speed) {
+                this.name = name;
+                this.max_hp = hp;
+                this.last_hp = hp;
+                this.current_hp = hp;
+                this.max_sp = sp;
+                this.last_sp = sp;
+                this.current_sp = sp;
+                this.attack = attack;
+                this.defense = defense;
+                this.speed = speed;
+            }
+        }
+    </script>
+</body>
+</html>
