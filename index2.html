@@ -5,20 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         .game_container {
             display: flex;
             flex-direction: column;
         }
 
-        #turn_display {
-            width: 200px;
+        #turn_queue_display {
+            width: 400px;
             height: 100px;
+            display: flex;
+            flex-direction: row;
             background-color: gold;
+        }
+        
+        .character_simple_display {
+            width: 60px;
+        }
+
+        .character_simple_display .character_name {
+            font-size: 10px;
         }
 
         #characters_display {
             display: flex;
             flex-direction: row;
+        }
+
+        .character_name {
+            font-size: 14px;
         }
 
         .team_display {
@@ -43,6 +61,12 @@
             aspect-ratio: 1/1;
         }
 
+        .queue_profile_picture {
+            width: 60px;
+            height: 60px;
+            aspect-ratio: 1/1;
+        }
+
         #ally_team_display {
             background-color: lightblue;
         }
@@ -54,7 +78,7 @@
 </head>
 <body>
     <section class="game_container">
-        <div id="turn_display"></div>
+        <div id="turn_queue_display"></div>
         <div id="characters_display">
             <div id="ally_team_display" class="team_display"></div>
             <div id="enemy_team_display" class="team_display"></div>
@@ -94,9 +118,22 @@
             new Character("Demon Hound", 100, 2, 12, 8, 105)
         ]
 
+        let turn_queue = [].concat(ally_team, enemy_team);
+        console.log(turn_queue);
+
+        const turnQueueDisplay = document.getElementById("turn_queue_display");
         const allyTeamDisplay = document.getElementById("ally_team_display");
         const enemyTeamDisplay = document.getElementById("enemy_team_display");
 
+        turnQueueDisplay.innerHTML = turn_queue.map(
+            (chara) => {
+                return `<div class="character_simple_display">
+                    <img src="assets/img/display_1.jpg" class="queue_profile_picture">
+                    <div class="character_name">${chara.name}</div>
+                </div>`;
+            }
+        ).join('');
+        
         allyTeamDisplay.innerHTML = ally_team.map(
             (ally, i) => {
                 return `<div class="character_display">
