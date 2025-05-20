@@ -39,7 +39,7 @@
     <section class="game_container">
         <div id="turn_display"></div>
         <div id="characters_display">
-            <div id="allied_team_display" class="team_display"></div>
+            <div id="ally_team_display" class="team_display"></div>
             <div id="enemy_team_display" class="team_display"></div>
         </div>
     </section>
@@ -66,27 +66,31 @@
             }
         }
 
-        let allies = [
+        let ally_team = [
             new Character("Axel", 150, 16, 25, 25, 110),
             new Character("Alicia", 135, 32, 20, 20, 120)
         ]
 
-        let enemies = [
+        let enemy_team = [
             new Character("Skeleton Swordsman", 100, 4, 10, 10, 100),
             new Character("Skeleton Mage", 80, 10, 10, 5, 110)
         ]
 
-        console.log("The Ally Team");
+        const allyTeamDisplay = document.getElementById("ally_team_display");
+        const enemyTeamDisplay = document.getElementById("enemy_team_display");
 
-        for (let i = 0; i < allies.length; i++) {
-            console.log(allies[i]);
-        }
+        allyTeamDisplay.innerHTML = ally_team.map(
+            (ally, i) => {
+                return `<div class="character_display">${ally.name}</div>`;
+            }
+        ).join('');
 
-        console.log("The Enemy Team")
+        enemyTeamDisplay.innerHTML = enemy_team.map(
+            (enemy, j) => {
+                return `<div class="character_display">${enemy.name}</div>`;
+            }
+        ).join('');
 
-        for (let i = 0; i < enemies.length; i++) {
-            console.log(enemies[i]);
-        }
     </script>
 </body>
 </html>
