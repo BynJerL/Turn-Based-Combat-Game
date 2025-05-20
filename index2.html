@@ -26,7 +26,24 @@
             height: 300px;
         }
 
-        #allied_team_display {
+        .character_display {
+            display: flex;
+            border: 1px solid black;
+        }
+
+        .property_display {
+            display: grid;
+            grid-template-columns: 20px 80px;
+            gap: 10px;
+        }
+
+        .profile_picture {
+            width: 60px;
+            height: 60px;
+            aspect-ratio: 1/1;
+        }
+
+        #ally_team_display {
             background-color: lightblue;
         }
 
@@ -73,7 +90,8 @@
 
         let enemy_team = [
             new Character("Skeleton Swordsman", 100, 4, 10, 10, 100),
-            new Character("Skeleton Mage", 80, 10, 10, 5, 110)
+            new Character("Skeleton Mage", 80, 10, 10, 5, 110),
+            new Character("Demon Hound", 100, 2, 12, 8, 105)
         ]
 
         const allyTeamDisplay = document.getElementById("ally_team_display");
@@ -81,13 +99,39 @@
 
         allyTeamDisplay.innerHTML = ally_team.map(
             (ally, i) => {
-                return `<div class="character_display">${ally.name}</div>`;
+                return `<div class="character_display">
+                    <img src="assets/img/display_1.jpg" class="profile_picture">
+                    <div>
+                        <div class="character_name">${ally.name}</div>
+                        <div class="property_display">
+                            <div class="property_name">HP</div>
+                            <div class="property_value health">${ally.current_hp}/${ally.max_hp}</div>
+                        </div>
+                        <div class="property_display">
+                            <div class="property_name">SP</div>
+                            <div class="property_value skill">${ally.current_sp}/${ally.max_sp}</div>
+                        </div>
+                    </div>
+                </div>`;
             }
         ).join('');
 
         enemyTeamDisplay.innerHTML = enemy_team.map(
             (enemy, j) => {
-                return `<div class="character_display">${enemy.name}</div>`;
+                return `<div class="character_display">
+                    <img src="assets/img/display_1.jpg" class="profile_picture">
+                    <div>
+                        <div class="character_name">${enemy.name}</div>
+                        <div class="property_display">
+                            <div class="property_name">HP</div>
+                            <div class="property_value health">${enemy.current_hp}/${enemy.max_hp}</div>
+                        </div>
+                        <div class="property_display">
+                            <div class="property_name">SP</div>
+                            <div class="property_value skill">${enemy.current_sp}/${enemy.max_sp}</div>
+                        </div>
+                    </div>
+                </div>`;
             }
         ).join('');
 
