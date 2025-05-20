@@ -119,6 +119,7 @@
         ]
 
         let turn_queue = [].concat(ally_team, enemy_team);
+        turn_queue.sort(function(a, b) {return b.speed - a.speed});
         console.log(turn_queue);
 
         const turnQueueDisplay = document.getElementById("turn_queue_display");
