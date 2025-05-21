@@ -119,6 +119,7 @@
             height: 5px;
             border: 1px solid black;
             margin-top: 1px;
+            background-color: darkslategrey;
         }
 
         .health {
@@ -127,6 +128,10 @@
 
         .skill {
             background-color: gold;
+        }
+
+        .health, .skill {
+            height: 100%;
         }
 
         #action_buttons {
@@ -163,7 +168,7 @@
         });
 
         class Character {
-            constructor (name, type, hp, sp, attack, defense, speed, imgDir = placeholderImgDir) {
+            constructor (name, type, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
                 this.name = name;
                 this.type = type;
                 this.max_hp = hp;
@@ -175,17 +180,45 @@
                 this.attack = attack;
                 this.defense = defense;
                 this.speed = speed;
-                this.imgDir = imgDir
+                this.img_dir = img_dir
+                this.is_alive = true;
+            }
+
+            take_damage(dmg) {
+                this.last_hp = this.current_hp;
+                this.current_hp -= dmg;
+
+                if (this.current_hp < 0) {
+                    this.current_hp = 0;
+                    this.is_alive = false;
+                } 
+            }
+
+            heal(hp) {
+                this.last_hp = this.current_hp;
+                this.current_hp += hp;
+
+                if (this.current_hp > this.max_hp) {
+                    this.current_hp = this.max_hp;
+                }
+            }
+
+            revive(hp) {
+                this.is_alive = true;
+                this.heal(hp);
             }
         }
 
         class Ally extends Character {
-            
+            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ALLY) {
+                super(name, type, hp, sp, attack, defense, speed, img_dir);
+            }
         }
 
         let ally_team = [
             new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
-            new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120, "assets/img/alicia.jpg")
+            new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120, "assets/img/alicia.jpg"),
+            new Ally("Brine", 210, 12, 30, 30, 100)
         ]
 
         let enemy_team = [
@@ -193,6 +226,8 @@
             new Character("Skeleton Mage", CharacterType.ENEMY, 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
             new Character("Demon Hound", CharacterType.ENEMY, 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
         ]
+
+        ally_team[2].take_damage(10);
 
         let turn_queue = [].concat(ally_team, enemy_team);
         let next_turn_queue = [];
@@ -204,6 +239,15 @@
         const enemyTeamDisplay = document.getElementById("enemy_team_display");
         const activeCharacterDisplay = document.getElementById("active_character");
         
+        /**
+         * @param {Character} performer 
+         * @param {Character} target
+        */
+        function basic_attack(performer, target) {
+            let damage = Math.floor(0.5 * performer.attack);
+            target.take_damage(damage);
+        }
+
         function updateQueue() {
             active_character = turn_queue[0];
 
@@ -211,7 +255,7 @@
             turnQueueDisplay.innerHTML = displayed_turn_queue.map(
             (chara, idx) => {
                     return `<div class="character_simple_display${(!idx)?' current_turn':''}">
-                        <img src="${chara.imgDir}" class="queue_profile_picture">
+                        <img src="${chara.img_dir}" class="queue_profile_picture">
                     </div>`;
                 }
             ).join('');
@@ -221,7 +265,7 @@
 
         function updateActiveCharacter() {
             activeCharacterDisplay.innerHTML = `
-            <img src="${active_character.imgDir}" class="active_character_profile_picture">
+            <img src="${active_character.img_dir}" class="active_character_profile_picture">
             <div>
                 <div class="character_name">${active_character.name}</div>
                 <div class="property_display">
@@ -239,9 +283,13 @@
         allyTeamDisplay.innerHTML = ally_team.map(
             (ally, i) => {
                 return `<div class="character_display">
-                    <img src="${ally.imgDir}" class="profile_picture">
-                    <div class="bar health" style="width:${100 * ally.current_hp/ally.max_hp}%"></div>
-                    <div class="bar skill" style="width:${100 * ally.current_sp/ally.max_sp}%"></div>
+                    <img src="${ally.img_dir}" class="profile_picture">
+                    <div class="bar">
+                        <div class="health" style="width:${100 * ally.current_hp/ally.max_hp}%"></div>
+                    </div>
+                    <div class="bar">
+                        <div class="skill" style="width:${100 * ally.current_sp/ally.max_sp}%"></div>
+                    </div>
                 </div>`;
             }
         ).join('');
@@ -249,9 +297,13 @@
         enemyTeamDisplay.innerHTML = enemy_team.map(
             (enemy, j) => {
                 return `<div class="character_display">
-                    <img src="${enemy.imgDir}" class="profile_picture">
-                    <div class="bar health" style="width:${100 * enemy.current_hp/enemy.max_hp}%"></div>
-                    <div class="bar skill" style="width:${100 * enemy.current_sp/enemy.max_sp}%"></div>
+                    <img src="${enemy.img_dir}" class="profile_picture">
+                    <div class="bar">
+                        <div class="health" style="width:${100 * enemy.current_hp/enemy.max_hp}%"></div>
+                    </div>
+                    <div class="bar">
+                        <div class="skill" style="width:${100 * enemy.current_sp/enemy.max_sp}%"></div>
+                    </div>                    
                 </div>`;
             }
         ).join('');
