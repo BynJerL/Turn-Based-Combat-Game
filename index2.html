@@ -15,15 +15,26 @@
         }
 
         #turn_queue_display {
-            width: 400px;
-            height: 100px;
+            width: 60px;
+            height: 300px;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             background-color: gold;
+            gap: 0;
+            overflow: visible;
         }
         
         .character_simple_display {
             width: 60px;
+            height: 30px;
+            margin: 0;
+            box-sizing: content-box;
+        }
+
+        .current_turn {
+            border: 3px solid red;
+            margin-right: -4px;
+            z-index: 1;
         }
 
         .character_simple_display .character_name {
@@ -40,7 +51,7 @@
         }
 
         .team_display {
-            width: 200px;
+            width: 170px;
             height: 300px;
             display: flex;
             flex-direction: column;
@@ -78,8 +89,9 @@
 
         .queue_profile_picture {
             width: 60px;
-            height: 60px;
-            aspect-ratio: 1/1;
+            height: 30px;
+            aspect-ratio: 1/2;
+            object-fit: cover;
         }
 
         #ally_team_display {
@@ -125,8 +137,8 @@
 </head>
 <body>
     <section class="game_container">
-        <div id="turn_queue_display"></div>
         <div id="characters_display">
+            <div id="turn_queue_display"></div>
             <div id="ally_team_display" class="team_display"></div>
             <div id="enemy_team_display" class="team_display"></div>
         </div>
@@ -197,10 +209,9 @@
 
             displayed_turn_queue = turn_queue.concat(next_turn_queue);
             turnQueueDisplay.innerHTML = displayed_turn_queue.map(
-            (chara) => {
-                    return `<div class="character_simple_display">
+            (chara, idx) => {
+                    return `<div class="character_simple_display${(!idx)?' current_turn':''}">
                         <img src="${chara.imgDir}" class="queue_profile_picture">
-                        <div class="character_name">${chara.name}</div>
                     </div>`;
                 }
             ).join('');
