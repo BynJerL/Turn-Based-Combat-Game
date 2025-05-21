@@ -75,6 +75,12 @@
         #enemy_team_display {
             background-color: lightsalmon;
         }
+
+        #action_bar {
+            width: 400px;
+            height: 100px;
+            background-color: darkseagreen;
+        }
     </style>
 </head>
 <body>
@@ -83,6 +89,9 @@
         <div id="characters_display">
             <div id="ally_team_display" class="team_display"></div>
             <div id="enemy_team_display" class="team_display"></div>
+        </div>
+        <div id="action_bar">
+            <button class="action_button">Next Turn</button>
         </div>
     </section>
     
@@ -94,8 +103,9 @@
         });
 
         class Character {
-            constructor (name, hp, sp, attack, defense, speed) {
+            constructor (name, type, hp, sp, attack, defense, speed) {
                 this.name = name;
+                this.type = type;
                 this.max_hp = hp;
                 this.last_hp = hp;
                 this.current_hp = hp;
@@ -108,15 +118,19 @@
             }
         }
 
+        class Ally extends Character {
+            
+        }
+
         let ally_team = [
-            new Character("Axel", 150, 16, 25, 25, 110),
-            new Character("Alicia", 135, 32, 20, 20, 120)
+            new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110),
+            new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120)
         ]
 
         let enemy_team = [
-            new Character("Skeleton Swordsman", 100, 4, 10, 10, 100),
-            new Character("Skeleton Mage", 80, 10, 10, 5, 110),
-            new Character("Demon Hound", 100, 2, 12, 8, 105)
+            new Character("Skeleton Swordsman", CharacterType.ENEMY, 100, 4, 10, 10, 100),
+            new Character("Skeleton Mage", CharacterType.ENEMY, 80, 10, 10, 5, 110),
+            new Character("Demon Hound", CharacterType.ENEMY, 100, 2, 12, 8, 105)
         ]
 
         let turn_queue = [].concat(ally_team, enemy_team);
@@ -127,14 +141,18 @@
         const allyTeamDisplay = document.getElementById("ally_team_display");
         const enemyTeamDisplay = document.getElementById("enemy_team_display");
 
-        turnQueueDisplay.innerHTML = turn_queue.map(
+        function updateQueue() {
+            turnQueueDisplay.innerHTML = turn_queue.map(
             (chara) => {
-                return `<div class="character_simple_display">
-                    <img src="assets/img/display_1.jpg" class="queue_profile_picture">
-                    <div class="character_name">${chara.name}</div>
-                </div>`;
-            }
-        ).join('');
+                    return `<div class="character_simple_display">
+                        <img src="assets/img/display_1.jpg" class="queue_profile_picture">
+                        <div class="character_name">${chara.name}</div>
+                    </div>`;
+                }
+            ).join('');
+        }
+
+        
         
         allyTeamDisplay.innerHTML = ally_team.map(
             (ally, i) => {
@@ -174,6 +192,20 @@
             }
         ).join('');
 
+        document.querySelectorAll('.action_button').forEach(button => {
+            button.addEventListener('click', function(){
+                const action = button.innerHTML;
+
+                switch (action) {
+                    case "Next Turn": 
+                        turn_queue.shift();
+                        updateQueue();
+                    break;
+                }
+            });
+        });
+
+        updateQueue();
     </script>
 </body>
 </html>
