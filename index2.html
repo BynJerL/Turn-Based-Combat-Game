@@ -103,13 +103,15 @@
     
 
     <script>
+        const placeholderImgDir = "assets/img/display_1.jpg";
+
         const CharacterType = Object.freeze({
             ALLY:"Ally",
             ENEMY:"Enemy"
         });
 
         class Character {
-            constructor (name, type, hp, sp, attack, defense, speed) {
+            constructor (name, type, hp, sp, attack, defense, speed, imgDir = placeholderImgDir) {
                 this.name = name;
                 this.type = type;
                 this.max_hp = hp;
@@ -121,6 +123,7 @@
                 this.attack = attack;
                 this.defense = defense;
                 this.speed = speed;
+                this.imgDir = imgDir
             }
         }
 
@@ -129,14 +132,14 @@
         }
 
         let ally_team = [
-            new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110),
-            new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120)
+            new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110, "assets/img/display_3.jpeg"),
+            new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120, "assets/img/alicia.jpg")
         ]
 
         let enemy_team = [
             new Character("Skeleton Swordsman", CharacterType.ENEMY, 100, 4, 10, 10, 100),
             new Character("Skeleton Mage", CharacterType.ENEMY, 80, 10, 10, 5, 110),
-            new Character("Demon Hound", CharacterType.ENEMY, 100, 2, 12, 8, 105)
+            new Character("Demon Hound", CharacterType.ENEMY, 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
         ]
 
         let turn_queue = [].concat(ally_team, enemy_team);
@@ -156,7 +159,7 @@
             turnQueueDisplay.innerHTML = displayed_turn_queue.map(
             (chara) => {
                     return `<div class="character_simple_display">
-                        <img src="assets/img/display_1.jpg" class="queue_profile_picture">
+                        <img src="${chara.imgDir}" class="queue_profile_picture">
                         <div class="character_name">${chara.name}</div>
                     </div>`;
                 }
@@ -167,7 +170,7 @@
 
         function updateActiveCharacter() {
             activeCharacterDisplay.innerHTML = `
-            <img src="assets/img/display_1.jpg" class="profile_picture">
+            <img src="${active_character.imgDir}" class="profile_picture">
             <div>
                 <div class="character_name">${active_character.name}</div>
                 <div class="property_display">
@@ -185,7 +188,7 @@
         allyTeamDisplay.innerHTML = ally_team.map(
             (ally, i) => {
                 return `<div class="character_display">
-                    <img src="assets/img/display_1.jpg" class="profile_picture">
+                    <img src="${ally.imgDir}" class="profile_picture">
                     <div>
                         <div class="character_name">${ally.name}</div>
                         <div class="property_display">
@@ -204,7 +207,7 @@
         enemyTeamDisplay.innerHTML = enemy_team.map(
             (enemy, j) => {
                 return `<div class="character_display">
-                    <img src="assets/img/display_1.jpg" class="profile_picture">
+                    <img src="${enemy.imgDir}" class="profile_picture">
                     <div>
                         <div class="character_name">${enemy.name}</div>
                         <div class="property_display">
