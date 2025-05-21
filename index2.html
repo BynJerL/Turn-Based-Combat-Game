@@ -134,6 +134,7 @@
         ]
 
         let turn_queue = [].concat(ally_team, enemy_team);
+        let next_turn_queue = [];
         turn_queue.sort(function(a, b) {return b.speed - a.speed});
         console.log(turn_queue);
 
@@ -142,7 +143,8 @@
         const enemyTeamDisplay = document.getElementById("enemy_team_display");
 
         function updateQueue() {
-            turnQueueDisplay.innerHTML = turn_queue.map(
+            displayed_turn_queue = turn_queue.concat(next_turn_queue);
+            turnQueueDisplay.innerHTML = displayed_turn_queue.map(
             (chara) => {
                     return `<div class="character_simple_display">
                         <img src="assets/img/display_1.jpg" class="queue_profile_picture">
@@ -152,8 +154,6 @@
             ).join('');
         }
 
-        
-        
         allyTeamDisplay.innerHTML = ally_team.map(
             (ally, i) => {
                 return `<div class="character_display">
@@ -198,7 +198,13 @@
 
                 switch (action) {
                     case "Next Turn": 
-                        turn_queue.shift();
+                        next_turn_queue.push(turn_queue.shift());
+
+                        if (!turn_queue.length) {
+                            turn_queue = next_turn_queue;
+                            next_turn_queue = [];
+                        }
+
                         updateQueue();
                     break;
                 }
