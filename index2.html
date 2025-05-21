@@ -80,6 +80,11 @@
             width: 400px;
             height: 100px;
             background-color: darkseagreen;
+            display: flex;
+        }
+
+        #active_character {
+            display: flex;
         }
     </style>
 </head>
@@ -91,6 +96,7 @@
             <div id="enemy_team_display" class="team_display"></div>
         </div>
         <div id="action_bar">
+            <div id="active_character"></div>
             <button class="action_button">Next Turn</button>
         </div>
     </section>
@@ -136,13 +142,16 @@
         let turn_queue = [].concat(ally_team, enemy_team);
         let next_turn_queue = [];
         turn_queue.sort(function(a, b) {return b.speed - a.speed});
-        console.log(turn_queue);
+        active_character = turn_queue[0];
 
         const turnQueueDisplay = document.getElementById("turn_queue_display");
         const allyTeamDisplay = document.getElementById("ally_team_display");
         const enemyTeamDisplay = document.getElementById("enemy_team_display");
-
+        const activeCharacterDisplay = document.getElementById("active_character");
+        
         function updateQueue() {
+            active_character = turn_queue[0];
+
             displayed_turn_queue = turn_queue.concat(next_turn_queue);
             turnQueueDisplay.innerHTML = displayed_turn_queue.map(
             (chara) => {
@@ -152,6 +161,25 @@
                     </div>`;
                 }
             ).join('');
+
+            updateActiveCharacter();
+        }
+
+        function updateActiveCharacter() {
+            activeCharacterDisplay.innerHTML = `
+            <img src="assets/img/display_1.jpg" class="profile_picture">
+            <div>
+                <div class="character_name">${active_character.name}</div>
+                <div class="property_display">
+                    <div class="property_name">HP</div>
+                    <div class="property_value health">${active_character.current_hp}/${active_character.max_hp}</div>
+                </div>
+                <div class="property_display">
+                    <div class="property_name">SP</div>
+                    <div class="property_value skill">${active_character.current_sp}/${active_character.max_sp}</div>
+                </div>
+            </div>
+            `;
         }
 
         allyTeamDisplay.innerHTML = ally_team.map(
