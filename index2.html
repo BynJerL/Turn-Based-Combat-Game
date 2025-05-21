@@ -47,7 +47,10 @@
         }
 
         .character_name {
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
         }
 
         .team_display {
@@ -70,9 +73,10 @@
 
         .property_display {
             display: grid;
-            grid-template-columns: 20px 80px;
+            grid-template-columns: 15px 90px;
             gap: 10px;
             font-size: 12px;
+            margin-top: 2px;
         }
 
         .profile_picture {
@@ -112,6 +116,7 @@
         #active_character {
             display: flex;
             width: 200px;
+            gap: 5px;
         }
 
         .bar {
@@ -120,6 +125,34 @@
             border: 1px solid black;
             margin-top: 1px;
             background-color: darkslategrey;
+            position: relative;
+        }
+
+        .property_display .bar {
+            height: 14px;
+        }
+
+        .property_name {
+            font-size: 10px;
+            font-weight: 600;
+            font-style: italic;
+            color: white;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
+        }
+
+        .property_value {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            z-index: 1;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .health {
@@ -218,7 +251,7 @@
         let ally_team = [
             new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
             new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120, "assets/img/alicia.jpg"),
-            new Ally("Brine", 210, 12, 30, 30, 100)
+            new Ally("Brine", 210, 12, 30, 30, 100, img_dir="assets/img/brine.jpg") // Test
         ]
 
         let enemy_team = [
@@ -270,11 +303,17 @@
                 <div class="character_name">${active_character.name}</div>
                 <div class="property_display">
                     <div class="property_name">HP</div>
-                    <div class="property_value health">${active_character.current_hp}/${active_character.max_hp}</div>
+                    <div class="bar">
+                        <div class="health" style="width:${100 * active_character.current_hp/active_character.max_hp}%"></div>
+                        <div class="property_value">${active_character.current_hp}/${active_character.max_hp}</div>
+                    </div>
                 </div>
                 <div class="property_display">
                     <div class="property_name">SP</div>
-                    <div class="property_value skill">${active_character.current_sp}/${active_character.max_sp}</div>
+                    <div class="bar">
+                        <div class="skill" style="width:${100 * active_character.current_sp/active_character.max_sp}%"></div>
+                        <div class="property_value">${active_character.current_sp}/${active_character.max_sp}</div>
+                    </div>
                 </div>
             </div>
             `;
