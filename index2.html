@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Turn-Based Combat: Initial Test</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -25,9 +25,9 @@
         }
         
         .character_simple_display {
-            width: 60px;
-            height: 30px;
-            margin: 0;
+            width: 50px;
+            height: 20px;
+            margin-bottom: 0;
             box-sizing: content-box;
         }
 
@@ -67,7 +67,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 50px;
+            width: 40px;
             border: 0px solid black;
         }
 
@@ -80,8 +80,8 @@
         }
 
         .profile_picture {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             aspect-ratio: 1/1;
         }
 
@@ -92,9 +92,9 @@
         }
 
         .queue_profile_picture {
-            width: 60px;
-            height: 30px;
-            aspect-ratio: 1/2;
+            width: 50px;
+            height: 20px;
+            aspect-ratio: 1/1;
             object-fit: cover;
         }
 
@@ -121,10 +121,11 @@
 
         .bar {
             width: 100%;
-            height: 5px;
-            border: 1px solid black;
+            height: 3px;
+            /* border: 1px solid black; */
             margin-top: 1px;
             background-color: darkslategrey;
+            box-shadow: 1px 1px 1px black;
             position: relative;
         }
 
@@ -171,6 +172,12 @@
             display: grid;
             width: 200px;
         }
+
+        #info_bar {
+            width: 400px;
+            height: 50px;
+            background-color: greenyellow;
+        }
     </style>
 </head>
 <body>
@@ -180,6 +187,7 @@
             <div id="ally_team_display" class="team_display"></div>
             <div id="enemy_team_display" class="team_display"></div>
         </div>
+        <div id="info_bar"></div>
         <div id="action_bar">
             <div id="active_character"></div>
             <div id="action_buttons">
@@ -242,8 +250,16 @@
             }
         }
 
+        // Will be used in the future
         class Ally extends Character {
             constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ALLY) {
+                super(name, type, hp, sp, attack, defense, speed, img_dir);
+            }
+        }
+
+        // Will be used in the future
+        class Enemy extends Character {
+            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ENEMY) {
                 super(name, type, hp, sp, attack, defense, speed, img_dir);
             }
         }
@@ -277,7 +293,7 @@
          * @param {Character} target
         */
         function basic_attack(performer, target) {
-            let damage = Math.floor(0.5 * performer.attack);
+            let damage = Math.floor(performer.attack);
             target.take_damage(damage);
         }
 
@@ -319,53 +335,107 @@
             `;
         }
 
-        allyTeamDisplay.innerHTML = ally_team.map(
-            (ally, i) => {
-                return `<div class="character_display">
-                    <img src="${ally.img_dir}" class="profile_picture">
-                    <div class="bar">
-                        <div class="health" style="width:${100 * ally.current_hp/ally.max_hp}%"></div>
-                    </div>
-                    <div class="bar">
-                        <div class="skill" style="width:${100 * ally.current_sp/ally.max_sp}%"></div>
-                    </div>
-                </div>`;
-            }
-        ).join('');
-
-        enemyTeamDisplay.innerHTML = enemy_team.map(
-            (enemy, j) => {
-                return `<div class="character_display">
-                    <img src="${enemy.img_dir}" class="profile_picture">
-                    <div class="bar">
-                        <div class="health" style="width:${100 * enemy.current_hp/enemy.max_hp}%"></div>
-                    </div>
-                    <div class="bar">
-                        <div class="skill" style="width:${100 * enemy.current_sp/enemy.max_sp}%"></div>
-                    </div>                    
-                </div>`;
-            }
-        ).join('');
-
-        document.querySelectorAll('.action_button').forEach(button => {
-            button.addEventListener('click', function(){
-                const action = button.innerHTML;
-
-                switch (action) {
-                    case "Next Turn": 
-                        next_turn_queue.push(turn_queue.shift());
-
-                        if (!turn_queue.length) {
-                            turn_queue = next_turn_queue;
-                            next_turn_queue = [];
-                        }
-
-                        updateQueue();
-                    break;
+        function updateTeamDisplay () {
+            allyTeamDisplay.innerHTML = ally_team.map(
+                (ally, i) => {
+                    return `<div class="character_display">
+                        <img src="${ally.img_dir}" class="profile_picture">
+                        <div class="bar">
+                            <div class="health" style="width:${100 * ally.current_hp/ally.max_hp}%"></div>
+                        </div>
+                        <div class="bar">
+                            <div class="skill" style="width:${100 * ally.current_sp/ally.max_sp}%"></div>
+                        </div>
+                    </div>`;
                 }
-            });
-        });
+            ).join('');
 
+            enemyTeamDisplay.innerHTML = enemy_team.map(
+                (enemy, j) => {
+                    return `<div class="character_display">
+                        <img src="${enemy.img_dir}" class="profile_picture">
+                        <div class="bar">
+                            <div class="health" style="width:${100 * enemy.current_hp/enemy.max_hp}%"></div>
+                        </div>
+                        <div class="bar">
+                            <div class="skill" style="width:${100 * enemy.current_sp/enemy.max_sp}%"></div>
+                        </div>                    
+                    </div>`;
+                }
+            ).join('');
+        }
+
+        function updateActionButtons () {
+            document.querySelectorAll('.action_button').forEach(button => {
+                button.addEventListener('click', function(){
+                    const action = button.innerHTML;
+
+                    switch (action) {
+                        case "Basic Attack": 
+                            let target_list = []
+                            if (active_character.type === CharacterType.ALLY) {
+                                for (let i = 0; i < enemy_team.length; i++) {
+                                    if (enemy_team[i].is_alive) {
+                                        target_list.push(enemy_team[i]);
+                                    }
+                                }
+                            } else {
+                                for (let i = 0; i < ally_team.length; i++) {
+                                    if (ally_team[i].is_alive) {
+                                        target_list.push(ally_team[i]);
+                                    }
+                                }
+                            }
+                            
+                            const actionButtons = document.getElementById("action_buttons");
+                            actionButtons.innerHTML = target_list.map((target, target_id) => {
+                                return `<button class="attack_target" data-idx="${target_id}">${target.name}</button>`;
+                            }).join('');
+
+                            document.querySelectorAll(".attack_target[data-idx]").forEach(button => {
+                                button.addEventListener("click", function() {
+                                    const idx = parseInt(this.getAttribute('data-idx'));
+                                    const target = target_list[idx];
+
+                                    basic_attack(active_character, target);
+                                    updateTeamDisplay();
+                                    next_turn_queue.push(turn_queue.shift());
+
+                                    if (!turn_queue.length) {
+                                        turn_queue = next_turn_queue;
+                                        next_turn_queue = [];
+                                    }
+
+                                    updateQueue();
+                                    actionButtons.innerHTML = `
+                                        <button class="action_button">Basic Attack</button>
+                                        <button class="action_button">Use Skill</button>
+                                        <button class="action_button">Use Item</button>
+                                        <button class="action_button">Next Turn</button>
+                                    `;
+
+                                    updateActionButtons();
+                                });
+                            })
+                        break;
+
+                        case "Next Turn": 
+                            next_turn_queue.push(turn_queue.shift());
+
+                            if (!turn_queue.length) {
+                                turn_queue = next_turn_queue;
+                                next_turn_queue = [];
+                            }
+
+                            updateQueue();
+                        break;
+                    }
+                });
+            });    
+        }
+
+        updateActionButtons();
+        updateTeamDisplay();
         updateQueue();
     </script>
 </body>
