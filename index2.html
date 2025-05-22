@@ -267,7 +267,8 @@
         let ally_team = [
             new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
             new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120, "assets/img/alicia.jpg"),
-            new Ally("Brine", 210, 12, 30, 30, 100, img_dir="assets/img/brine.jpg") // Test
+            new Ally("Brine", 210, 12, 30, 30, 100, img_dir="assets/img/brine.jpg"), // Test
+            new Ally("Patricia", 150, 25, 25, 15, 115, "assets/img/patricia.jpg")
         ]
 
         let enemy_team = [
@@ -295,6 +296,11 @@
         function basic_attack(performer, target) {
             let damage = Math.floor(performer.attack);
             target.take_damage(damage);
+        }
+
+        function clear_defeated() {
+            turn_queue = turn_queue.filter(chara => chara.is_alive);
+            next_turn_queue = next_turn_queue.filter(chara => chara.is_alive);
         }
 
         function updateQueue() {
@@ -398,6 +404,7 @@
                                     const target = target_list[idx];
 
                                     basic_attack(active_character, target);
+                                    clear_defeated();
                                     updateTeamDisplay();
                                     next_turn_queue.push(turn_queue.shift());
 
