@@ -187,7 +187,10 @@
             <div id="ally_team_display" class="team_display"></div>
             <div id="enemy_team_display" class="team_display"></div>
         </div>
-        <div id="info_bar"></div>
+        <div id="info_bar">
+            <div id="info_content"></div>
+            <button id="ok_button">Okay</button>
+        </div>
         <div id="action_bar">
             <div id="active_character"></div>
             <div id="action_buttons">
@@ -202,6 +205,12 @@
 
     <script>
         const placeholderImgDir = "assets/img/display_1.jpg";
+
+        const GameState = Object.freeze({
+            NOT_FINISHED:"Not Finished",
+            VICTORY:"Victory",
+            DEFEAT:"Defeat"
+        })
 
         const CharacterType = Object.freeze({
             ALLY:"Ally",
@@ -229,7 +238,7 @@
                 this.last_hp = this.current_hp;
                 this.current_hp -= dmg;
 
-                if (this.current_hp < 0) {
+                if (this.current_hp <= 0) {
                     this.current_hp = 0;
                     this.is_alive = false;
                 } 
@@ -288,19 +297,32 @@
         const allyTeamDisplay = document.getElementById("ally_team_display");
         const enemyTeamDisplay = document.getElementById("enemy_team_display");
         const activeCharacterDisplay = document.getElementById("active_character");
-        
+        const infoContentDisplay = document.getElementById("info_content");
+
         /**
          * @param {Character} performer 
          * @param {Character} target
         */
-        function basic_attack(performer, target) {
+        function basicAttack(performer, target) {
             let damage = Math.floor(performer.attack);
             target.take_damage(damage);
         }
 
-        function clear_defeated() {
+        function clearDefeated() {
             turn_queue = turn_queue.filter(chara => chara.is_alive);
             next_turn_queue = next_turn_queue.filter(chara => chara.is_alive);
+        }
+
+        function checkGameState () {
+            if (!enemy_team.filter(chara => chara.is_alive).length) {
+                return GameState.VICTORY;
+            }
+
+            if (!ally_team.filter(chara => chara.is_alive).length) {
+                return GameState.DEFEAT;
+            }
+
+            return GameState.NOT_FINISHED;
         }
 
         function updateQueue() {
@@ -403,8 +425,8 @@
                                     const idx = parseInt(this.getAttribute('data-idx'));
                                     const target = target_list[idx];
 
-                                    basic_attack(active_character, target);
-                                    clear_defeated();
+                                    basicAttack(active_character, target);
+                                    clearDefeated();
                                     updateTeamDisplay();
                                     next_turn_queue.push(turn_queue.shift());
 
@@ -414,14 +436,22 @@
                                     }
 
                                     updateQueue();
-                                    actionButtons.innerHTML = `
-                                        <button class="action_button">Basic Attack</button>
-                                        <button class="action_button">Use Skill</button>
-                                        <button class="action_button">Use Item</button>
-                                        <button class="action_button">Next Turn</button>
-                                    `;
+                                    if (checkGameState() === GameState.NOT_FINISHED) {
+                                        actionButtons.innerHTML = `
+                                            <button class="action_button">Basic Attack</button>
+                                            <button class="action_button">Use Skill</button>
+                                            <button class="action_button">Use Item</button>
+                                            <button class="action_button">Next Turn</button>
+                                        `;
 
-                                    updateActionButtons();
+                                        updateActionButtons();
+                                    } else if (checkGameState() === GameState.VICTORY) {
+                                        actionButtons.innerHTML = "";
+                                        alert("Game Over!\nYou won the battle.");
+                                    } else if (checkGameState() === GameState.DEFEAT) {
+                                        actionButtons.innerHTML = "";
+                                        alert("Game Over!\nYou lose the battle.");
+                                    }
                                 });
                             })
                         break;
