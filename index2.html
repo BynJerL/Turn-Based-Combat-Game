@@ -24,7 +24,7 @@
             overflow: visible;
         }
         
-        .character_simple_display {
+        .character_simple_display, .on_queue_character_display {
             width: 50px;
             height: 20px;
             margin-bottom: 0;
@@ -37,10 +37,6 @@
             border: 2px solid gold;
             margin-right: -4px;
             z-index: 1;
-        }
-
-        .character_simple_display .character_name {
-            font-size: 10px;
         }
 
         #characters_display {
@@ -197,7 +193,26 @@
             <button id="ok_button">Okay</button>
         </div>
         <div id="action_bar">
-            <div id="active_character"></div>
+            <div id="active_character">
+                <img src="" alt="" id="active_character_picture" class="active_character_profile_picture">
+                <div>
+                    <div class="character_name"></div>
+                    <div class="property_display">
+                        <div class="property_name">HP</div>
+                        <div class="bar">
+                            <div class="health"></div>
+                            <div class="property_value"></div>
+                        </div>
+                    </div>
+                    <div class="property_display">
+                        <div class="property_name">SP</div>
+                        <div class="bar">
+                            <div class="skill"></div>
+                            <div class="property_value"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="action_buttons">
                 <button class="action_button">Basic Attack</button>
                 <button class="action_button">Use Skill</button>
@@ -207,9 +222,14 @@
         </div>
     </section>
     
-
     <script>
         const placeholderImgDir = "assets/img/display_1.jpg";
+
+        const turnQueueDisplay = document.getElementById("turn_queue_display");
+        const allyTeamDisplay = document.getElementById("ally_team_display");
+        const enemyTeamDisplay = document.getElementById("enemy_team_display");
+        const activeCharacterDisplay = document.getElementById("active_character");
+        const infoContentDisplay = document.getElementById("info_content");
 
         const BattleState = Object.freeze({
             NOT_STARTED:"Not Started",
@@ -341,12 +361,15 @@
             getTargets(type) {
                 // Not yet implemented
             },
-            /** @param {Character} attacker @param {Character} target*/ 
-            doBasicAttack(attacker, target) {
-                // Not yet implemented
+            /** @param {Character} performer @param {Character} target @param {number} dmg_amplifier */ 
+            doBasicAttack(performer, target, dmg_amplifier = 1) {
+                let raw_damage = Math.floor(performer.attack * dmg_amplifier);
+                let damage_reduction = (raw_damage > 0)? 0.2 * target.defense: 0;
+                let damage = raw_damage - damage_reduction;
+                target.applyDamage(damage);
             },
-            /** @param {Character} user @param {Character} target*/ 
-            useSkill(skill, user, target) {
+            /** @param {Character} performer @param {Character} target*/ 
+            useSkill(skill, performer, target) {
                 // Not yet implemented
             },
             /** @param {Character} target*/ 
@@ -355,6 +378,78 @@
             },
             logAction(action) {
                 // Not yet implemented
+            }
+        }
+
+        const UIManager = {
+            updateQueueDisplay () {
+                full_queue = BattleManager.turn_queue.concat(BattleManager.next_turn_queue);
+                turnQueueDisplay.innerHTML = full_queue.map(
+                    (chara, index) => {
+                        return `
+                        <div class="on_queue_character_display${(!index)? " current_turn": ""}">
+                            <img src="${chara.img_dir}" alt="${chara.name}" class="queue_profile_picture">
+                        </div>`;
+                    }
+                ).join('');
+            },
+            updateActingCharacterDisplay () {
+                const acting_character = BattleManager.acting_character;            
+                document.querySelector("#active_character #active_character_picture").src = acting_character.img_dir;
+                document.querySelector("#active_character #active_character_picture").alt = acting_character.name;
+                document.querySelector("#active_character .character_name").textContent = acting_character.name;
+
+                const hpBar = document.querySelector("#active_character .health");
+                const hpValue = document.querySelector("#active_character .property_display .bar .property_value");
+                hpBar.style.width = (100 * acting_character.current_hp / acting_character.max_hp) + "%";
+                hpValue.textContent = `${acting_character.current_hp}/${acting_character.max_hp}`;
+
+                const spBar = document.querySelector("#active_character .skill");
+                const spValue = document.querySelectorAll("#active_character .property_display .bar .property_value")[1];
+                spBar.style.width = (100 * acting_character.current_sp / acting_character.max_sp) + "%";
+                spValue.textContent = `${acting_character.current_sp}/${acting_character.max_sp}`;
+            },
+            initTeamDisplay () {
+                allyTeamDisplay.innerHTML = BattleManager.ally_team.map((ally, i) => `
+                    <div class="character_display" data-idx="${i}">
+                        <img src="${ally.img_dir}" class="profile_picture" alt="${ally.name}">
+                        <div class="bar">
+                            <div class="health"></div>
+                        </div>
+                        <div class="bar">
+                            <div class="skill"></div>
+                        </div>
+                    </div>`
+                ).join('');
+
+                enemyTeamDisplay.innerHTML = BattleManager.enemy_team.map((enemy, j) => `
+                    <div class="character_display" data-idx="${j}">
+                        <img src="${enemy.img_dir}" class="profile_picture" alt="${enemy.name}">
+                        <div class="bar">
+                            <div class="health"></div>
+                        </div>
+                        <div class="bar">
+                            <div class="skill"></div>
+                        </div>
+                    </div>`
+                ).join('');
+            },
+            updateTeamDisplay() {
+                const alliesDisplays = allyTeamDisplay.children;
+                BattleManager.ally_team.forEach((ally, i) => {
+                    const hpBar = alliesDisplays[i].querySelector('.health');
+                    const spBar = alliesDisplays[i].querySelector('.skill');
+                    if (hpBar) hpBar.style.width = (100 * ally.current_hp / ally.max_hp) + "%";
+                    if (spBar) spBar.style.width = (100 * ally.current_sp / ally.max_sp) + "%";
+                });
+
+                const enemiesDisplays = enemyTeamDisplay.children;
+                BattleManager.enemy_team.forEach((enemy, i) => {
+                    const hpBar = enemiesDisplays[i].querySelector('.health');
+                    const spBar = enemiesDisplays[i].querySelector('.skill');
+                    if (hpBar) hpBar.style.width = (100 * enemy.current_hp / enemy.max_hp) + "%";
+                    if (spBar) spBar.style.width = (100 * enemy.current_sp / enemy.max_sp) + "%";
+                });
             }
         }
 
@@ -385,12 +480,6 @@
         let next_turn_queue = [];
         turn_queue.sort(function(a, b) {return b.speed - a.speed});
         active_character = turn_queue[0];
-
-        const turnQueueDisplay = document.getElementById("turn_queue_display");
-        const allyTeamDisplay = document.getElementById("ally_team_display");
-        const enemyTeamDisplay = document.getElementById("enemy_team_display");
-        const activeCharacterDisplay = document.getElementById("active_character");
-        const infoContentDisplay = document.getElementById("info_content");
 
         /**
          * @param {Character} performer 
@@ -564,9 +653,13 @@
             });    
         }
 
+        BattleManager.turn_queue[0].current_sp = 10;
+
         updateActionButtons();
         updateTeamDisplay();
-        updateQueue();
+        // updateQueue();
+        UIManager.updateQueueDisplay();
+        UIManager.updateActingCharacterDisplay();
     </script>
 </body>
 </html>
