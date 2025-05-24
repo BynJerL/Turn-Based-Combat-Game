@@ -19,29 +19,34 @@
             height: 300px;
             display: flex;
             flex-direction: column;
-            background-color: gold;
-            gap: 0;
+            background-color: transparent;
+            align-items: center;
+            gap: 2px;
             overflow: visible;
         }
         
-        .character_simple_display, .on_queue_character_display {
+        .on_queue_character_display {
             width: 50px;
             height: 20px;
             margin-bottom: 0;
             position: relative;
             box-sizing: content-box;
             overflow: hidden;
+            opacity: 0.6;
         }
 
-        .current_turn {
-            border: 2px solid gold;
-            margin-right: -4px;
+        .on_queue_character_display.current_turn {
+            /* border: 2px solid white; */
+            /* margin-right: -4px; */
             z-index: 1;
+            opacity: 1;
         }
 
         #characters_display {
             display: flex;
             flex-direction: row;
+            width: 400px;
+            background-color: #222;
         }
 
         .character_name {
@@ -90,7 +95,7 @@
         }
 
         .queue_profile_picture {
-            position: absolute;
+            /* position: absolute; */
             width: 100%;
             height: 100%;
             aspect-ratio: 1/1;
@@ -100,11 +105,11 @@
         }
 
         #ally_team_display {
-            background-color: lightblue;
+            background-color: transparent;
         }
 
         #enemy_team_display {
-            background-color: lightsalmon;
+            background-color: transparent;
         }
 
         #action_bar {
@@ -178,6 +183,11 @@
             width: 400px;
             height: 50px;
             background-color: greenyellow;
+        }
+
+        .beaten {
+            filter: grayscale(1);
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -314,12 +324,14 @@
             ],
             enemy_team: [
                 new Enemy("Skeleton Swordsman", 100, 4, 10, 10, 100, "assets/img/skeleton_swordsman.jpg"),
+                new Enemy("Skeleton Swordsman", 100, 4, 10, 10, 100, "assets/img/skeleton_swordsman.jpg"),
                 new Enemy("Skeleton Mage", 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
                 new Enemy("Demon Hound", 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
             ],
             turn_queue: [],
             next_turn_queue: [],
             round : 1,
+            player_items: [],
             acting_character: null,
             current_battle_state: BattleState.NOT_STARTED,
             
@@ -442,16 +454,30 @@
                 BattleManager.ally_team.forEach((ally, i) => {
                     const hpBar = alliesDisplays[i].querySelector('.health');
                     const spBar = alliesDisplays[i].querySelector('.skill');
+                    const image = alliesDisplays[i].querySelector('.profile_picture');
                     if (hpBar) hpBar.style.width = (100 * ally.current_hp / ally.max_hp) + "%";
                     if (spBar) spBar.style.width = (100 * ally.current_sp / ally.max_sp) + "%";
+
+                    if (!ally.is_alive) {
+                        alliesDisplays[i].classList.add('beaten');
+                    } else {
+                        alliesDisplays[i].classList.remove('beaten');
+                    }
                 });
 
                 const enemiesDisplays = enemyTeamDisplay.children;
                 BattleManager.enemy_team.forEach((enemy, i) => {
                     const hpBar = enemiesDisplays[i].querySelector('.health');
                     const spBar = enemiesDisplays[i].querySelector('.skill');
+                    const image = enemiesDisplays[i].querySelector('.profile_picture');
                     if (hpBar) hpBar.style.width = (100 * enemy.current_hp / enemy.max_hp) + "%";
                     if (spBar) spBar.style.width = (100 * enemy.current_sp / enemy.max_sp) + "%";
+                    
+                    if (!enemy.is_alive) {
+                        enemiesDisplays[i].classList.add('beaten');
+                    } else {
+                        enemiesDisplays[i].classList.remove('beaten');
+                    }
                 });
             },
             updateActionButtons () {
