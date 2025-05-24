@@ -557,6 +557,10 @@
                                         BattleManager.shiftTurn();
                                         UIManager.updateQueueDisplay();
                                         UIManager.updateActingCharacterDisplay();
+                                        
+                                        Array.from(allyTeamDisplay.children).forEach(el => el.classList.remove('glow_target'));
+                                        Array.from(enemyTeamDisplay.children).forEach(el => el.classList.remove('glow_target'));
+                                        
                                         if (BattleManager.checkBattleState() === BattleState.ON_BATTLE) {
                                             UIManager.updateActionButtons();
                                         } else {
