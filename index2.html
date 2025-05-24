@@ -211,8 +211,9 @@
     <script>
         const placeholderImgDir = "assets/img/display_1.jpg";
 
-        const GameState = Object.freeze({
-            NOT_FINISHED:"Not Finished",
+        const BattleState = Object.freeze({
+            NOT_STARTED:"Not Started",
+            ON_BATTLE:"On Battle",
             VICTORY:"Victory",
             DEFEAT:"Defeat"
         })
@@ -223,6 +224,7 @@
         });
 
         class Character {
+            /** @param {string} name @param {CharacterType} type @param {number} hp @param {number} sp @param {number} attack @param {number} defense @param {number} speed @param {string} img_dir*/
             constructor (name, type, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
                 this.name = name;
                 this.type = type;
@@ -239,6 +241,7 @@
                 this.is_alive = true;
             }
 
+            /** @param {number} amount */
             modifyHealth(amount) {
                 this.last_hp = this.current_hp;
                 this.current_hp += amount;
@@ -251,35 +254,117 @@
                 }
             }
 
+            /** @param {number} amount */
             applyDamage(amount) {
                 this.modifyHealth(-amount);
             }
 
+            /** @param {number} amount */
             applyHeal(amount) {
                 this.modifyHealth(amount);
             }
 
+            /** @param {number} hp */
             revive(hp) {
                 this.is_alive = true;
                 this.applyHeal(hp);
             }
         }
 
-        // const BattleManager = {
-
-        // }
-
         class Ally extends Character {
-            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ALLY) {
-                super(name, type, hp, sp, attack, defense, speed, img_dir);
+            /** @param {string} name @param {number} hp @param {number} sp @param {number} attack @param {number} defense @param {number} speed @param {string} img_dir*/
+            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
+                super(name, CharacterType.ALLY, hp, sp, attack, defense, speed, img_dir);
             }
         }
 
         class Enemy extends Character {
-            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ENEMY) {
-                super(name, type, hp, sp, attack, defense, speed, img_dir);
+            /** @param {string} name @param {number} hp @param {number} sp @param {number} attack @param {number} defense @param {number} speed @param {string} img_dir*/
+            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
+                super(name, CharacterType.ENEMY, hp, sp, attack, defense, speed, img_dir);
             }
         }
+
+        const BattleManager = {
+            ally_team: [
+                new Ally("Axel", 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
+                new Ally("Alicia", 135, 32, 20, 20, 120, "assets/img/alicia.jpg"),
+                new Ally("Brine", 210, 12, 30, 30, 100, "assets/img/brine.jpg"),
+                new Ally("Patricia", 150, 25, 25, 15, 115, "assets/img/patricia.jpg")
+            ],
+            enemy_team: [
+                new Enemy("Skeleton Swordsman", 100, 4, 10, 10, 100, "assets/img/skeleton_swordsman.jpg"),
+                new Enemy("Skeleton Mage", 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
+                new Enemy("Demon Hound", 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
+            ],
+            get turn_queue() {
+                return[].concat(this.ally_team, this.enemy_team).sort(function(a, b) {return b.speed - a.speed})
+            },
+            next_turn_queue: [],
+            round : 1,
+            acting_character: null,
+            current_battle_state: BattleState.NOT_STARTED,
+            
+            init() {},
+            setActiveCharacter() {
+                this.acting_character = this.turn_queue[0];
+            },
+            clearNonAliveCharacters() {
+                this.turn_queue = this.turn_queue.filter(chara => chara.is_alive);
+                this.next_turn_queue = this.next_turn_queue.filter(chara => chara.is_alive); 
+            },
+            checkBattleState() {
+                if (!this.enemy_team.filter(enemy => enemy.is_alive).length) {
+                    return BattleState.VICTORY;
+                }
+
+                if (!this.ally_team.filter(ally => ally.is_alive).length) {
+                    return BattleState.DEFEAT;
+                }
+
+                return BattleState.ON_BATTLE;
+            },
+            shiftTurn() {
+                this.next_turn_queue.push(this.turn_queue.shift());
+
+                if (!this.turn_queue.length) {
+                    this.turn_queue = this.next_turn_queue;
+                    this.next_turn_queue = [];
+                }
+
+                this.setActiveCharacter();
+            },
+            endTurn() {
+                // Not yet implemented
+            },
+            /** @param {CharacterType} type*/ 
+            getTargets(type) {
+                // Not yet implemented
+            },
+            /** @param {Character} attacker @param {Character} target*/ 
+            doBasicAttack(attacker, target) {
+                // Not yet implemented
+            },
+            /** @param {Character} user @param {Character} target*/ 
+            useSkill(skill, user, target) {
+                // Not yet implemented
+            },
+            /** @param {Character} target*/ 
+            useItem(target) {
+                // Not yet implemented
+            },
+            logAction(action) {
+                // Not yet implemented
+            }
+        }
+
+        // BattleManager test
+        console.log(BattleManager.ally_team);
+        console.log(BattleManager.enemy_team);
+        console.log(BattleManager.turn_queue);
+        console.log(BattleManager.next_turn_queue);
+        BattleManager.setActiveCharacter();
+        console.log(BattleManager.acting_character);
 
         let ally_team = [
             new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
@@ -323,14 +408,14 @@
 
         function checkGameState () {
             if (!enemy_team.filter(chara => chara.is_alive).length) {
-                return GameState.VICTORY;
+                return BattleState.VICTORY;
             }
 
             if (!ally_team.filter(chara => chara.is_alive).length) {
-                return GameState.DEFEAT;
+                return BattleState.DEFEAT;
             }
 
-            return GameState.NOT_FINISHED;
+            return BattleState.ON_BATTLE;
         }
 
         function updateQueue() {
@@ -444,7 +529,7 @@
                                     }
 
                                     updateQueue();
-                                    if (checkGameState() === GameState.NOT_FINISHED) {
+                                    if (checkGameState() === BattleState.ON_BATTLE) {
                                         actionButtons.innerHTML = `
                                             <button class="action_button">Basic Attack</button>
                                             <button class="action_button">Use Skill</button>
@@ -453,10 +538,10 @@
                                         `;
 
                                         updateActionButtons();
-                                    } else if (checkGameState() === GameState.VICTORY) {
+                                    } else if (checkGameState() === BattleState.VICTORY) {
                                         actionButtons.innerHTML = "";
                                         alert("Game Over!\nYou won the battle.");
-                                    } else if (checkGameState() === GameState.DEFEAT) {
+                                    } else if (checkGameState() === BattleState.DEFEAT) {
                                         actionButtons.innerHTML = "";
                                         alert("Game Over!\nYou lose the battle.");
                                     }
