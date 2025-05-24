@@ -317,15 +317,17 @@
                 new Enemy("Skeleton Mage", 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
                 new Enemy("Demon Hound", 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
             ],
-            get turn_queue() {
-                return[].concat(this.ally_team, this.enemy_team).sort(function(a, b) {return b.speed - a.speed})
-            },
+            turn_queue: [],
             next_turn_queue: [],
             round : 1,
             acting_character: null,
             current_battle_state: BattleState.NOT_STARTED,
             
-            init() {},
+            init() {
+                this.turn_queue = this.turn_queue.concat(this.ally_team, this.enemy_team).sort(function(a, b) {return b.speed - a.speed})
+                this.checkBattleState();
+                this.setActiveCharacter();
+            },
             setActiveCharacter() {
                 this.acting_character = this.turn_queue[0];
             },
@@ -350,6 +352,7 @@
                 if (!this.turn_queue.length) {
                     this.turn_queue = this.next_turn_queue;
                     this.next_turn_queue = [];
+                    this.round += 1;
                 }
 
                 this.setActiveCharacter();
@@ -450,216 +453,80 @@
                     if (hpBar) hpBar.style.width = (100 * enemy.current_hp / enemy.max_hp) + "%";
                     if (spBar) spBar.style.width = (100 * enemy.current_sp / enemy.max_sp) + "%";
                 });
+            },
+            updateActionButtons () {
+                const actionButtons = document.getElementById("action_buttons");
+                actionButtons.innerHTML = `
+                    <button class="action_button">Basic Attack</button>
+                    <button class="action_button">Use Skill</button>
+                    <button class="action_button">Use Item</button>
+                    <button class="action_button">Next Turn</button>
+                `;
+
+                actionButtons.querySelectorAll('.action_button').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const action = button.textContent;
+                        switch (action) {
+                            case "Basic Attack":
+                                let targetList = [];
+                                if (BattleManager.acting_character.type === CharacterType.ALLY) {
+                                    targetList = BattleManager.enemy_team.filter(t => t.is_alive);
+                                } else {
+                                    targetList = BattleManager.ally_team.filter(t => t.is_alive);
+                                }
+                                actionButtons.innerHTML = targetList.map((target, idx) =>
+                                    `<button class="attack_target" data-idx="${idx}">${target.name}</button>`
+                                ).join('');
+                                actionButtons.querySelectorAll('.attack_target').forEach(btn => {
+                                    btn.addEventListener('click', function () {
+                                        const idx = parseInt(this.getAttribute('data-idx'));
+                                        const target = targetList[idx];
+                                        BattleManager.doBasicAttack(BattleManager.acting_character, target);
+                                        BattleManager.clearNonAliveCharacters();
+                                        UIManager.updateTeamDisplay();
+                                        BattleManager.shiftTurn();
+                                        UIManager.updateQueueDisplay();
+                                        UIManager.updateActingCharacterDisplay();
+                                        if (BattleManager.checkBattleState() === BattleState.ON_BATTLE) {
+                                            UIManager.updateActionButtons();
+                                        } else {
+                                            actionButtons.innerHTML = "";
+                                            alert(
+                                                BattleManager.checkBattleState() === BattleState.VICTORY
+                                                    ? "Game Over!\nYou won the battle."
+                                                    : "Game Over!\nYou lose the battle."
+                                            );
+                                        }
+                                    });
+                                });
+                                break;
+                            case "Next Turn":
+                                BattleManager.shiftTurn();
+                                UIManager.updateQueueDisplay();
+                                UIManager.updateActingCharacterDisplay();
+                                UIManager.updateActionButtons();
+                                break;
+                        }
+                    });
+                });
+            },
+            init () {
+                this.initTeamDisplay();
+                this.updateTeamDisplay();
+                this.updateQueueDisplay();
+                this.updateActingCharacterDisplay();
+                this.updateActionButtons();
             }
         }
 
         // BattleManager test
+        BattleManager.init();
+        UIManager.init();
         console.log(BattleManager.ally_team);
         console.log(BattleManager.enemy_team);
         console.log(BattleManager.turn_queue);
         console.log(BattleManager.next_turn_queue);
-        BattleManager.setActiveCharacter();
         console.log(BattleManager.acting_character);
-
-        let ally_team = [
-            new Character("Axel", CharacterType.ALLY, 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
-            new Character("Alicia", CharacterType.ALLY, 135, 32, 20, 20, 120, "assets/img/alicia.jpg"),
-            new Ally("Brine", 210, 12, 30, 30, 100, img_dir="assets/img/brine.jpg"), // Test
-            new Ally("Patricia", 150, 25, 25, 15, 115, "assets/img/patricia.jpg")
-        ]
-
-        let enemy_team = [
-            new Character("Skeleton Swordsman", CharacterType.ENEMY, 100, 4, 10, 10, 100, "assets/img/skeleton_swordsman.jpg"),
-            new Character("Skeleton Mage", CharacterType.ENEMY, 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
-            new Character("Demon Hound", CharacterType.ENEMY, 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
-        ]
-
-        ally_team[2].applyDamage(10);
-
-        let turn_queue = [].concat(ally_team, enemy_team);
-        let next_turn_queue = [];
-        turn_queue.sort(function(a, b) {return b.speed - a.speed});
-        active_character = turn_queue[0];
-
-        /**
-         * @param {Character} performer 
-         * @param {Character} target
-        */
-        function basicAttack(performer, target) {
-            let damage = Math.floor(performer.attack);
-            target.applyDamage(damage);
-        }
-
-        function clearDefeated() {
-            turn_queue = turn_queue.filter(chara => chara.is_alive);
-            next_turn_queue = next_turn_queue.filter(chara => chara.is_alive);
-        }
-
-        function checkGameState () {
-            if (!enemy_team.filter(chara => chara.is_alive).length) {
-                return BattleState.VICTORY;
-            }
-
-            if (!ally_team.filter(chara => chara.is_alive).length) {
-                return BattleState.DEFEAT;
-            }
-
-            return BattleState.ON_BATTLE;
-        }
-
-        function updateQueue() {
-            active_character = turn_queue[0];
-
-            displayed_turn_queue = turn_queue.concat(next_turn_queue);
-            turnQueueDisplay.innerHTML = displayed_turn_queue.map(
-            (chara, idx) => {
-                    return `<div class="character_simple_display${(!idx)?' current_turn':''}">
-                        <img src="${chara.img_dir}" class="queue_profile_picture">
-                    </div>`;
-                }
-            ).join('');
-
-            updateActiveCharacter();
-        }
-
-        function updateActiveCharacter() {
-            activeCharacterDisplay.innerHTML = `
-            <img src="${active_character.img_dir}" class="active_character_profile_picture">
-            <div>
-                <div class="character_name">${active_character.name}</div>
-                <div class="property_display">
-                    <div class="property_name">HP</div>
-                    <div class="bar">
-                        <div class="health" style="width:${100 * active_character.current_hp/active_character.max_hp}%"></div>
-                        <div class="property_value">${active_character.current_hp}/${active_character.max_hp}</div>
-                    </div>
-                </div>
-                <div class="property_display">
-                    <div class="property_name">SP</div>
-                    <div class="bar">
-                        <div class="skill" style="width:${100 * active_character.current_sp/active_character.max_sp}%"></div>
-                        <div class="property_value">${active_character.current_sp}/${active_character.max_sp}</div>
-                    </div>
-                </div>
-            </div>
-            `;
-        }
-
-        function updateTeamDisplay () {
-            allyTeamDisplay.innerHTML = ally_team.map(
-                (ally, i) => {
-                    return `<div class="character_display">
-                        <img src="${ally.img_dir}" class="profile_picture">
-                        <div class="bar">
-                            <div class="health" style="width:${100 * ally.current_hp/ally.max_hp}%"></div>
-                        </div>
-                        <div class="bar">
-                            <div class="skill" style="width:${100 * ally.current_sp/ally.max_sp}%"></div>
-                        </div>
-                    </div>`;
-                }
-            ).join('');
-
-            enemyTeamDisplay.innerHTML = enemy_team.map(
-                (enemy, j) => {
-                    return `<div class="character_display">
-                        <img src="${enemy.img_dir}" class="profile_picture">
-                        <div class="bar">
-                            <div class="health" style="width:${100 * enemy.current_hp/enemy.max_hp}%"></div>
-                        </div>
-                        <div class="bar">
-                            <div class="skill" style="width:${100 * enemy.current_sp/enemy.max_sp}%"></div>
-                        </div>                    
-                    </div>`;
-                }
-            ).join('');
-        }
-
-        function updateActionButtons () {
-            document.querySelectorAll('.action_button').forEach(button => {
-                button.addEventListener('click', function(){
-                    const action = button.innerHTML;
-
-                    switch (action) {
-                        case "Basic Attack": 
-                            let target_list = []
-                            if (active_character.type === CharacterType.ALLY) {
-                                for (let i = 0; i < enemy_team.length; i++) {
-                                    if (enemy_team[i].is_alive) {
-                                        target_list.push(enemy_team[i]);
-                                    }
-                                }
-                            } else {
-                                for (let i = 0; i < ally_team.length; i++) {
-                                    if (ally_team[i].is_alive) {
-                                        target_list.push(ally_team[i]);
-                                    }
-                                }
-                            }
-                            
-                            const actionButtons = document.getElementById("action_buttons");
-                            actionButtons.innerHTML = target_list.map((target, target_id) => {
-                                return `<button class="attack_target" data-idx="${target_id}">${target.name}</button>`;
-                            }).join('');
-
-                            document.querySelectorAll(".attack_target[data-idx]").forEach(button => {
-                                button.addEventListener("click", function() {
-                                    const idx = parseInt(this.getAttribute('data-idx'));
-                                    const target = target_list[idx];
-
-                                    basicAttack(active_character, target);
-                                    clearDefeated();
-                                    updateTeamDisplay();
-                                    next_turn_queue.push(turn_queue.shift());
-
-                                    if (!turn_queue.length) {
-                                        turn_queue = next_turn_queue;
-                                        next_turn_queue = [];
-                                    }
-
-                                    updateQueue();
-                                    if (checkGameState() === BattleState.ON_BATTLE) {
-                                        actionButtons.innerHTML = `
-                                            <button class="action_button">Basic Attack</button>
-                                            <button class="action_button">Use Skill</button>
-                                            <button class="action_button">Use Item</button>
-                                            <button class="action_button">Next Turn</button>
-                                        `;
-
-                                        updateActionButtons();
-                                    } else if (checkGameState() === BattleState.VICTORY) {
-                                        actionButtons.innerHTML = "";
-                                        alert("Game Over!\nYou won the battle.");
-                                    } else if (checkGameState() === BattleState.DEFEAT) {
-                                        actionButtons.innerHTML = "";
-                                        alert("Game Over!\nYou lose the battle.");
-                                    }
-                                });
-                            })
-                        break;
-
-                        case "Next Turn": 
-                            next_turn_queue.push(turn_queue.shift());
-
-                            if (!turn_queue.length) {
-                                turn_queue = next_turn_queue;
-                                next_turn_queue = [];
-                            }
-
-                            updateQueue();
-                        break;
-                    }
-                });
-            });    
-        }
-
-        BattleManager.turn_queue[0].current_sp = 10;
-
-        updateActionButtons();
-        updateTeamDisplay();
-        // updateQueue();
-        UIManager.updateQueueDisplay();
-        UIManager.updateActingCharacterDisplay();
     </script>
 </body>
 </html>
