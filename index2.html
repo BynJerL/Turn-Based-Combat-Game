@@ -336,7 +336,8 @@
                 new Enemy("Skeleton Swordsman", 100, 4, 10, 10, 100, "assets/img/skeleton_swordsman.jpg"),
                 new Enemy("Skeleton Swordsman", 100, 4, 10, 10, 100, "assets/img/skeleton_swordsman.jpg"),
                 new Enemy("Skeleton Mage", 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
-                new Enemy("Demon Hound", 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
+                new Enemy("Skeleton Mage", 80, 10, 10, 5, 110, "assets/img/skeleton_mage.jpg"),
+                // new Enemy("Demon Hound", 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
             ],
             turn_queue: [],
             next_turn_queue: [],
@@ -516,21 +517,22 @@
                                 actionButtons.querySelectorAll('.attack_target').forEach(btn => {
                                     btn.addEventListener('mouseenter', function () {
                                         btn.classList.add('glow_target');
-                                        // Optionally, highlight the character in the team display:
                                         const idx = parseInt(btn.getAttribute('data-idx'));
                                         let teamDisplays, team;
                                         if (BattleManager.acting_character.type === CharacterType.ALLY) {
                                             teamDisplays = enemyTeamDisplay.children;
-                                            team = BattleManager.enemy_team.filter(t => t.is_alive);
+                                            team = BattleManager.enemy_team;
                                         } else {
                                             teamDisplays = allyTeamDisplay.children;
-                                            team = BattleManager.ally_team.filter(t => t.is_alive);
+                                            team = BattleManager.ally_team;
                                         }
-                                        // Find the correct display index for the selected target
                                         const target = targetList[idx];
                                         for (let i = 0; i < teamDisplays.length; i++) {
-                                            if (team[i] === target) {
+                                            // Only glow if this is the correct target and is alive
+                                            if (team[i] === target && team[i].is_alive) {
                                                 teamDisplays[i].classList.add('glow_target');
+                                            } else {
+                                                teamDisplays[i].classList.remove('glow_target');
                                             }
                                         }
                                     });
