@@ -239,39 +239,42 @@
                 this.is_alive = true;
             }
 
-            take_damage(dmg) {
+            modifyHealth(amount) {
                 this.last_hp = this.current_hp;
-                this.current_hp -= dmg;
+                this.current_hp += amount;
+                this.is_alive = (this.current_hp > 0);
 
-                if (this.current_hp <= 0) {
+                if (this.current_hp < 0) {
                     this.current_hp = 0;
-                    this.is_alive = false;
-                } 
-            }
-
-            heal(hp) {
-                this.last_hp = this.current_hp;
-                this.current_hp += hp;
-
-                if (this.current_hp > this.max_hp) {
+                } else if (this.current_hp > this.max_hp) {
                     this.current_hp = this.max_hp;
                 }
             }
 
+            applyDamage(amount) {
+                this.modifyHealth(-amount);
+            }
+
+            applyHeal(amount) {
+                this.modifyHealth(amount);
+            }
+
             revive(hp) {
                 this.is_alive = true;
-                this.heal(hp);
+                this.applyHeal(hp);
             }
         }
 
-        // Will be used in the future
+        // const BattleManager = {
+
+        // }
+
         class Ally extends Character {
             constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ALLY) {
                 super(name, type, hp, sp, attack, defense, speed, img_dir);
             }
         }
 
-        // Will be used in the future
         class Enemy extends Character {
             constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir, type = CharacterType.ENEMY) {
                 super(name, type, hp, sp, attack, defense, speed, img_dir);
@@ -291,7 +294,7 @@
             new Character("Demon Hound", CharacterType.ENEMY, 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
         ]
 
-        ally_team[2].take_damage(10);
+        ally_team[2].applyDamage(10);
 
         let turn_queue = [].concat(ally_team, enemy_team);
         let next_turn_queue = [];
@@ -310,7 +313,7 @@
         */
         function basicAttack(performer, target) {
             let damage = Math.floor(performer.attack);
-            target.take_damage(damage);
+            target.applyDamage(damage);
         }
 
         function clearDefeated() {
