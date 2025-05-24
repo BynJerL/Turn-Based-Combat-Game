@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn-Based Combat: Initial Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .game_container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #turn_queue_display {
+            width: 60px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            background-color: transparent;
+            align-items: center;
+            gap: 2px;
+            overflow: visible;
+        }
+        
+        .on_queue_character_display {
+            width: 50px;
+            height: 20px;
+            margin-bottom: 0;
+            position: relative;
+            box-sizing: content-box;
+            overflow: hidden;
+            opacity: 0.6;
+        }
+
+        .on_queue_character_display.current_turn {
+            /* border: 2px solid white; */
+            /* margin-right: -4px; */
+            z-index: 1;
+            opacity: 1;
+        }
+
+        #characters_display {
+            display: flex;
+            flex-direction: row;
+            width: 400px;
+            background-color: #222;
+        }
+
+        .character_name {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
+        }
+
+        .team_display {
+            width: 170px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .character_display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40px;
+            border: 0px solid black;
+        }
+
+        .property_display {
+            display: grid;
+            grid-template-columns: 15px 90px;
+            gap: 10px;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .profile_picture {
+            width: 40px;
+            height: 40px;
+            aspect-ratio: 1/1;
+        }
+
+        .active_character_profile_picture {
+            width: 60px;
+            height: 60px;
+            aspect-ratio: 1/1;
+        }
+
+        .queue_profile_picture {
+            /* position: absolute; */
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            object-position: center;
+            transform: scale(1.5);
+        }
+
+        #ally_team_display {
+            background-color: transparent;
+        }
+
+        #enemy_team_display {
+            background-color: transparent;
+        }
+
+        #action_bar {
+            width: 400px;
+            height: 100px;
+            background-color: darkseagreen;
+            display: flex;
+        }
+
+        #active_character {
+            display: flex;
+            width: 200px;
+            gap: 5px;
+        }
+
+        .bar {
+            width: 100%;
+            height: 3px;
+            /* border: 1px solid black; */
+            margin-top: 1px;
+            background-color: darkslategrey;
+            box-shadow: 1px 1px 1px black;
+            position: relative;
+        }
+
+        .property_display .bar {
+            height: 14px;
+        }
+
+        .property_name {
+            font-size: 10px;
+            font-weight: 600;
+            font-style: italic;
+            color: white;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
+        }
+
+        .property_value {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            z-index: 1;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px #000, 0 0 2px #000;
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .health {
+            background-color: red;
+        }
+
+        .skill {
+            background-color: gold;
+        }
+
+        .health, .skill {
+            height: 100%;
+        }
+
+        #action_buttons {
+            display: grid;
+            width: 200px;
+        }
+
+        #info_bar {
+            width: 400px;
+            height: 50px;
+            background-color: greenyellow;
+        }
+
+        .beaten {
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+
+        .character_display.glow_target {
+            box-shadow: 0 0 8px 3px gold, 0 0 2px 1px #fff;
+            border: 2px solid gold;
+            z-index: 2;
+            position: relative;
+            background-color: #fff8;
+            color: #222;
+            transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <section class="game_container">
+        <div id="characters_display">
+            <div id="turn_queue_display"></div>
+            <div id="ally_team_display" class="team_display"></div>
+            <div id="enemy_team_display" class="team_display"></div>
+        </div>
+        <div id="info_bar">
+            <div id="info_content"></div>
+            <button id="ok_button">Okay</button>
+        </div>
+        <div id="action_bar">
+            <div id="active_character">
+                <img src="" alt="" id="active_character_picture" class="active_character_profile_picture">
+                <div>
+                    <div class="character_name"></div>
+                    <div class="property_display">
+                        <div class="property_name">HP</div>
+                        <div class="bar">
+                            <div class="health"></div>
+                            <div class="property_value"></div>
+                        </div>
+                    </div>
+                    <div class="property_display">
+                        <div class="property_name">SP</div>
+                        <div class="bar">
+                            <div class="skill"></div>
+                            <div class="property_value"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="action_buttons">
+                <button class="action_button">Basic Attack</button>
+                <button class="action_button">Use Skill</button>
+                <button class="action_button">Use Item</button>
+                <button class="action_button">Next Turn</button>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        const placeholderImgDir = "assets/img/display_1.jpg";
+
+        const turnQueueDisplay = document.getElementById("turn_queue_display");
+        const allyTeamDisplay = document.getElementById("ally_team_display");
+        const enemyTeamDisplay = document.getElementById("enemy_team_display");
+        const activeCharacterDisplay = document.getElementById("active_character");
+        const infoContentDisplay = document.getElementById("info_content");
+
+        const BattleState = Object.freeze({
+            NOT_STARTED:"Not Started",
+            ON_BATTLE:"On Battle",
+            VICTORY:"Victory",
+            DEFEAT:"Defeat"
+        })
+
+        const CharacterType = Object.freeze({
+            ALLY:"Ally",
+            ENEMY:"Enemy"
+        });
+
+        class Character {
+            /** @param {string} name @param {CharacterType} type @param {number} hp @param {number} sp @param {number} attack @param {number} defense @param {number} speed @param {string} img_dir*/
+            constructor (name, type, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
+                this.name = name;
+                this.type = type;
+                this.max_hp = hp;
+                this.last_hp = hp;
+                this.current_hp = hp;
+                this.max_sp = sp;
+                this.last_sp = sp;
+                this.current_sp = sp;
+                this.attack = attack;
+                this.defense = defense;
+                this.speed = speed;
+                this.img_dir = img_dir
+                this.is_alive = true;
+            }
+
+            /** @param {number} amount */
+            modifyHealth(amount) {
+                this.last_hp = this.current_hp;
+                this.current_hp += amount;
+                this.is_alive = (this.current_hp > 0);
+
+                if (this.current_hp < 0) {
+                    this.current_hp = 0;
+                } else if (this.current_hp > this.max_hp) {
+                    this.current_hp = this.max_hp;
+                }
+            }
+
+            /** @param {number} amount */
+            applyDamage(amount) {
+                this.modifyHealth(-amount);
+            }
+
+            /** @param {number} amount */
+            applyHeal(amount) {
+                this.modifyHealth(amount);
+            }
+
+            /** @param {number} hp */
+            revive(hp) {
+                this.is_alive = true;
+                this.applyHeal(hp);
+            }
+        }
+
+        class Ally extends Character {
+            /** @param {string} name @param {number} hp @param {number} sp @param {number} attack @param {number} defense @param {number} speed @param {string} img_dir*/
+            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
+                super(name, CharacterType.ALLY, hp, sp, attack, defense, speed, img_dir);
+            }
+        }
+
+        class Enemy extends Character {
+            /** @param {string} name @param {number} hp @param {number} sp @param {number} attack @param {number} defense @param {number} speed @param {string} img_dir*/
+            constructor (name, hp, sp, attack, defense, speed, img_dir = placeholderImgDir) {
+                super(name, CharacterType.ENEMY, hp, sp, attack, defense, speed, img_dir);
+            }
+        }
+
+        const BattleManager = {
+            ally_team: [
+                new Ally("Axel", 150, 16, 25, 25, 110, "assets/img/axel.jpg"),
+                new Ally("Alicia", 135, 32, 20, 20, 120, "assets/img/alicia.jpg"),
+                new Ally("Brine", 210, 12, 30, 30, 100, "assets/img/brine.jpg"),
+                new Ally("Patricia", 150, 25, 25, 15, 115, "assets/img/patricia.jpg")
+            ],
+            enemy_team: [
+                new Enemy("Skeleton Swordsman", 100, 4, 22, 10, 100, "assets/img/skeleton_swordsman.jpg"),
+                new Enemy("Skeleton Swordsman", 100, 4, 22, 10, 100, "assets/img/skeleton_swordsman.jpg"),
+                new Enemy("Skeleton Mage", 80, 10, 20, 5, 110, "assets/img/skeleton_mage.jpg"),
+                new Enemy("Skeleton Mage", 80, 10, 20, 5, 110, "assets/img/skeleton_mage.jpg"),
+                // new Enemy("Demon Hound", 100, 2, 12, 8, 105, "assets/img/dogexd.jpeg")
+            ],
+            turn_queue: [],
+            next_turn_queue: [],
+            round : 1,
+            player_items: [],
+            acting_character: null,
+            current_battle_state: BattleState.NOT_STARTED,
+            
+            init() {
+                this.turn_queue = this.turn_queue.concat(this.ally_team, this.enemy_team).sort(function(a, b) {return b.speed - a.speed})
+                this.checkBattleState();
+                this.setActiveCharacter();
+            },
+            setActiveCharacter() {
+                this.acting_character = this.turn_queue[0];
+            },
+            clearNonAliveCharacters() {
+                this.turn_queue = this.turn_queue.filter(chara => chara.is_alive);
+                this.next_turn_queue = this.next_turn_queue.filter(chara => chara.is_alive); 
+            },
+            checkBattleState() {
+                if (!this.enemy_team.filter(enemy => enemy.is_alive).length) {
+                    return BattleState.VICTORY;
+                }
+
+                if (!this.ally_team.filter(ally => ally.is_alive).length) {
+                    return BattleState.DEFEAT;
+                }
+
+                return BattleState.ON_BATTLE;
+            },
+            shiftTurn() {
+                this.next_turn_queue.push(this.turn_queue.shift());
+
+                if (!this.turn_queue.length) {
+                    this.turn_queue = this.next_turn_queue;
+                    this.next_turn_queue = [];
+                    this.round += 1;
+                }
+
+                this.setActiveCharacter();
+            },
+            endTurn() {
+                // Not yet implemented
+            },
+            /** @param {CharacterType} type*/ 
+            getTargets(type) {
+                // Not yet implemented
+            },
+            /** @param {Character} performer @param {Character} target @param {number} dmg_amplifier */ 
+            doBasicAttack(performer, target, dmg_amplifier = 1) {
+                let raw_damage = Math.floor(performer.attack * dmg_amplifier);
+                let damage_reduction = (raw_damage > 0)? 0.2 * target.defense: 0;
+                let damage = raw_damage - damage_reduction;
+                target.applyDamage(damage);
+            },
+            /** @param {Character} performer @param {Character} target*/ 
+            useSkill(skill, performer, target) {
+                // Not yet implemented
+            },
+            /** @param {Character} target*/ 
+            useItem(target) {
+                // Not yet implemented
+            },
+            logAction(action) {
+                // Not yet implemented
+            }
+        }
+
+        const UIManager = {
+            updateQueueDisplay () {
+                full_queue = BattleManager.turn_queue.concat(BattleManager.next_turn_queue);
+                turnQueueDisplay.innerHTML = full_queue.map(
+                    (chara, index) => {
+                        return `
+                        <div class="on_queue_character_display${(!index)? " current_turn": ""}">
+                            <img src="${chara.img_dir}" alt="${chara.name}" class="queue_profile_picture">
+                        </div>`;
+                    }
+                ).join('');
+            },
+            updateActingCharacterDisplay () {
+                const acting_character = BattleManager.acting_character;            
+                document.querySelector("#active_character #active_character_picture").src = acting_character.img_dir;
+                document.querySelector("#active_character #active_character_picture").alt = acting_character.name;
+                document.querySelector("#active_character .character_name").textContent = acting_character.name;
+
+                const hpBar = document.querySelector("#active_character .health");
+                const hpValue = document.querySelector("#active_character .property_display .bar .property_value");
+                hpBar.style.width = (100 * acting_character.current_hp / acting_character.max_hp) + "%";
+                hpValue.textContent = `${acting_character.current_hp}/${acting_character.max_hp}`;
+
+                const spBar = document.querySelector("#active_character .skill");
+                const spValue = document.querySelectorAll("#active_character .property_display .bar .property_value")[1];
+                spBar.style.width = (100 * acting_character.current_sp / acting_character.max_sp) + "%";
+                spValue.textContent = `${acting_character.current_sp}/${acting_character.max_sp}`;
+            },
+            initTeamDisplay () {
+                allyTeamDisplay.innerHTML = BattleManager.ally_team.map((ally, i) => `
+                    <div class="character_display" data-idx="${i}">
+                        <img src="${ally.img_dir}" class="profile_picture" alt="${ally.name}">
+                        <div class="bar">
+                            <div class="health"></div>
+                        </div>
+                        <div class="bar">
+                            <div class="skill"></div>
+                        </div>
+                    </div>`
+                ).join('');
+
+                enemyTeamDisplay.innerHTML = BattleManager.enemy_team.map((enemy, j) => `
+                    <div class="character_display" data-idx="${j}">
+                        <img src="${enemy.img_dir}" class="profile_picture" alt="${enemy.name}">
+                        <div class="bar">
+                            <div class="health"></div>
+                        </div>
+                        <div class="bar">
+                            <div class="skill"></div>
+                        </div>
+                    </div>`
+                ).join('');
+            },
+            updateTeamDisplay() {
+                const alliesDisplays = allyTeamDisplay.children;
+                BattleManager.ally_team.forEach((ally, i) => {
+                    const hpBar = alliesDisplays[i].querySelector('.health');
+                    const spBar = alliesDisplays[i].querySelector('.skill');
+                    const image = alliesDisplays[i].querySelector('.profile_picture');
+                    if (hpBar) hpBar.style.width = (100 * ally.current_hp / ally.max_hp) + "%";
+                    if (spBar) spBar.style.width = (100 * ally.current_sp / ally.max_sp) + "%";
+
+                    if (!ally.is_alive) {
+                        alliesDisplays[i].classList.add('beaten');
+                    } else {
+                        alliesDisplays[i].classList.remove('beaten');
+                    }
+                });
+
+                const enemiesDisplays = enemyTeamDisplay.children;
+                BattleManager.enemy_team.forEach((enemy, i) => {
+                    const hpBar = enemiesDisplays[i].querySelector('.health');
+                    const spBar = enemiesDisplays[i].querySelector('.skill');
+                    const image = enemiesDisplays[i].querySelector('.profile_picture');
+                    if (hpBar) hpBar.style.width = (100 * enemy.current_hp / enemy.max_hp) + "%";
+                    if (spBar) spBar.style.width = (100 * enemy.current_sp / enemy.max_sp) + "%";
+                    
+                    if (!enemy.is_alive) {
+                        enemiesDisplays[i].classList.add('beaten');
+                    } else {
+                        enemiesDisplays[i].classList.remove('beaten');
+                    }
+                });
+            },
+            updateActionButtons () {
+                const actionButtons = document.getElementById("action_buttons");
+                actionButtons.innerHTML = `
+                    <button class="action_button">Basic Attack</button>
+                    <button class="action_button">Use Skill</button>
+                    <button class="action_button">Use Item</button>
+                    <button class="action_button">Next Turn</button>
+                `;
+
+                actionButtons.querySelectorAll('.action_button').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const action = button.textContent;
+                        switch (action) {
+                            case "Basic Attack":
+                                let targetList = [];
+                                if (BattleManager.acting_character.type === CharacterType.ALLY) {
+                                    targetList = BattleManager.enemy_team.filter(t => t.is_alive);
+                                } else {
+                                    targetList = BattleManager.ally_team.filter(t => t.is_alive);
+                                }
+                                actionButtons.innerHTML = targetList.map((target, idx) =>
+                                    `<button class="attack_target" data-idx="${idx}">${target.name}</button>`
+                                ).join('');
+                                actionButtons.querySelectorAll('.attack_target').forEach(btn => {
+                                    btn.addEventListener('mouseenter', function () {
+                                        btn.classList.add('glow_target');
+                                        const idx = parseInt(btn.getAttribute('data-idx'));
+                                        let teamDisplays, team;
+                                        if (BattleManager.acting_character.type === CharacterType.ALLY) {
+                                            teamDisplays = enemyTeamDisplay.children;
+                                            team = BattleManager.enemy_team;
+                                        } else {
+                                            teamDisplays = allyTeamDisplay.children;
+                                            team = BattleManager.ally_team;
+                                        }
+                                        const target = targetList[idx];
+                                        for (let i = 0; i < teamDisplays.length; i++) {
+                                            // Only glow if this is the correct target and is alive
+                                            if (team[i] === target && team[i].is_alive) {
+                                                teamDisplays[i].classList.add('glow_target');
+                                            } else {
+                                                teamDisplays[i].classList.remove('glow_target');
+                                            }
+                                        }
+                                    });
+                                    btn.addEventListener('mouseleave', function () {
+                                        btn.classList.remove('glow_target');
+                                        // Remove highlight from team display
+                                        let teamDisplays;
+                                        if (BattleManager.acting_character.type === CharacterType.ALLY) {
+                                            teamDisplays = enemyTeamDisplay.children;
+                                        } else {
+                                            teamDisplays = allyTeamDisplay.children;
+                                        }
+                                        for (let i = 0; i < teamDisplays.length; i++) {
+                                            teamDisplays[i].classList.remove('glow_target');
+                                        }
+                                    });
+                                    
+                                    btn.addEventListener('click', function () {
+                                        const idx = parseInt(this.getAttribute('data-idx'));
+                                        const target = targetList[idx];
+                                        BattleManager.doBasicAttack(BattleManager.acting_character, target);
+                                        BattleManager.clearNonAliveCharacters();
+                                        UIManager.updateTeamDisplay();
+                                        BattleManager.shiftTurn();
+                                        UIManager.updateQueueDisplay();
+                                        UIManager.updateActingCharacterDisplay();
+                                        
+                                        Array.from(allyTeamDisplay.children).forEach(el => el.classList.remove('glow_target'));
+                                        Array.from(enemyTeamDisplay.children).forEach(el => el.classList.remove('glow_target'));
+                                        
+                                        if (BattleManager.checkBattleState() === BattleState.ON_BATTLE) {
+                                            UIManager.updateActionButtons();
+                                        } else {
+                                            actionButtons.innerHTML = "";
+                                            alert(
+                                                BattleManager.checkBattleState() === BattleState.VICTORY
+                                                    ? "Game Over!\nYou won the battle."
+                                                    : "Game Over!\nYou lose the battle."
+                                            );
+                                        }
+                                    });
+                                });
+                                break;
+                            case "Next Turn":
+                                BattleManager.shiftTurn();
+                                UIManager.updateQueueDisplay();
+                                UIManager.updateActingCharacterDisplay();
+                                UIManager.updateActionButtons();
+                                break;
+                        }
+                    });
+                });
+            },
+            init () {
+                this.initTeamDisplay();
+                this.updateTeamDisplay();
+                this.updateQueueDisplay();
+                this.updateActingCharacterDisplay();
+                this.updateActionButtons();
+            }
+        }
+
+        // BattleManager test
+        BattleManager.init();
+        UIManager.init();
+        console.log(BattleManager.ally_team);
+        console.log(BattleManager.enemy_team);
+        console.log(BattleManager.turn_queue);
+        console.log(BattleManager.next_turn_queue);
+        console.log(BattleManager.acting_character);
+    </script>
+</body>
+</html>
