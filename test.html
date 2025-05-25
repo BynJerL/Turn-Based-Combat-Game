@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #bottom-menu {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <section id="bottom-menu">
+        <div id="info-bar">
+            <div id="log">Select any action below</div>
+        </div>
+        <div id="action-bar">
+            <button>Basic Attack</button>
+            <button>Use Skill</button>
+            <button>Use Item</button>
+            <button>Check Info</button>
+        </div>
+    </section>
+
+    <script>
+        const logDiv = document.getElementById("log");
+        const okayBtn = document.getElementById("okay-button");
+        const actionBar = document.getElementById("action-bar");
+        const infoBar = document.getElementById("info-bar");
+
+        const BattleManager = {
+            acting_character: {
+                name: "Alicia",
+                curr_hp: 200,
+                max_hp: 240,
+                attack: 32,
+                defense: 32,
+                speed: 110,
+                skills: [
+                    "Plasma Ball",
+                    "Light Arrow",
+                    "Mana Enchant"
+                ]
+            },
+            get targets () {
+                // This is just placeholder
+                return [
+                    "Skeleton A",
+                    "Skeleton B",
+                    "Skeleton C"
+                ]
+            },
+            get items () {
+                // This is just placeholder
+                return [
+                    "Healing Kit A",
+                    "Healing Kit A",
+                    "Attack Boost Kit A"
+                ]
+            }
+        }
+
+        const UIManager = {
+            init() {
+                actionBar.children[0].onclick = () => this.showTargets("Basic Attack");;
+                actionBar.children[1].onclick = () => this.showSkills();
+                actionBar.children[2].onclick = () => this.showItems();
+                actionBar.children[3].onclick = () => {
+                    const acting_character = BattleManager.acting_character;
+                    logDiv.innerHTML = `
+                    ${acting_character.name}<br>
+                    HP &emsp; ${acting_character.curr_hp}/${acting_character.max_hp}<br>
+                    ATK &emsp; ${acting_character.attack}`;
+                    this.clearInfoBarOptions();
+                }
+            },
+            updateLog(content){
+                logDiv.textContent = content;
+            },
+            clearInfoBarOptions() {
+                Array.from(infoBar.querySelectorAll('.option-button')).forEach(button => button.remove());
+            },
+            showTargets(action) {
+                this.clearInfoBarOptions();
+                this.updateLog("Pick your target:");
+                BattleManager.targets.forEach(target => {
+                    const button = document.createElement('button');
+                    button.textContent = target;
+                    button.className = "option-button";
+                    button.onclick = () => {
+                        logDiv.textContent = `${BattleManager.acting_character.name} uses ${action} on ${target}!`;
+                        this.clearInfoBarOptions();
+                    }
+                    infoBar.appendChild(button);
+                });
+            },
+            showSkills() {
+                this.clearInfoBarOptions();
+                this.updateLog("Choose your skill:");
+                BattleManager.acting_character.skills.forEach(skill => {
+                    const button = document.createElement("button");
+                    button.textContent = skill;
+                    button.className = "option-button";
+                    button.onclick = () => {this.showTargets(skill)};
+                    infoBar.appendChild(button);
+                });
+            },
+            showItems() {
+                this.clearInfoBarOptions();
+                this.updateLog("Choose your item:");
+                BattleManager.items.forEach(item => {
+                    const button = document.createElement("button");
+                    button.textContent = item;
+                    button.className = "option-button";
+                    button.onclick = () => {
+                        logDiv.textContent = `${BattleManager.acting_character.name} uses ${item}!`;
+                        this.clearInfoBarOptions();
+                    };
+                    infoBar.appendChild(button);
+                });
+            }
+        }
+
+        UIManager.init();
+    </script>
+</body>
+</html>
