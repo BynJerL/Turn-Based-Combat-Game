@@ -21,12 +21,17 @@
             border: 3px solid black;
             padding: 5px;
         }
+
+        #next-button {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <section id="bottom-menu">
         <div id="info-bar">
             <div id="log">Select any action below</div>
+            <button id="next-button">Next</button>
         </div>
         <div id="action-bar">
             <button>Basic Attack</button>
@@ -107,6 +112,7 @@
                         Array.from(actionBar.children).forEach(button => {
                             button.disabled = true;
                         });
+                        this.showNextButton();
                     }
                     infoBar.appendChild(button);
                 });
@@ -135,9 +141,21 @@
                         Array.from(actionBar.children).forEach(button => {
                             button.disabled = true;
                         });
+                        this.showNextButton();
                     };
                     infoBar.appendChild(button);
                 });
+            },
+            showNextButton() {
+                this.updateLog("Click \"Next\" to Continue.");
+                nextBtn.style.display = "block";
+                nextBtn.onclick = () => {
+                    this.updateLog("Select any action below");
+                    Array.from(actionBar.children).forEach(button => {
+                        button.disabled = false;
+                    });
+                    nextBtn.style.display = "none";
+                };
             }
         }
 
