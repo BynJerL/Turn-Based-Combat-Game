@@ -5,9 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         #bottom-menu {
             display: flex;
             flex-direction: column;
+            width: 320px;
+            background-color: yellow;
+        }
+
+        #info-bar {
+            height: 80px;
+            border: 3px solid black;
+            padding: 5px;
         }
     </style>
 </head>
@@ -26,7 +38,7 @@
 
     <script>
         const logDiv = document.getElementById("log");
-        const okayBtn = document.getElementById("okay-button");
+        const nextBtn = document.getElementById("next-button");
         const actionBar = document.getElementById("action-bar");
         const infoBar = document.getElementById("info-bar");
 
@@ -92,6 +104,9 @@
                     button.onclick = () => {
                         logDiv.textContent = `${BattleManager.acting_character.name} uses ${action} on ${target}!`;
                         this.clearInfoBarOptions();
+                        Array.from(actionBar.children).forEach(button => {
+                            button.disabled = true;
+                        });
                     }
                     infoBar.appendChild(button);
                 });
@@ -117,6 +132,9 @@
                     button.onclick = () => {
                         logDiv.textContent = `${BattleManager.acting_character.name} uses ${item}!`;
                         this.clearInfoBarOptions();
+                        Array.from(actionBar.children).forEach(button => {
+                            button.disabled = true;
+                        });
                     };
                     infoBar.appendChild(button);
                 });
