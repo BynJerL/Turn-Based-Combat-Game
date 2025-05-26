@@ -55,8 +55,19 @@
             SPEED_BOOST: "Speed Boost"
         });
 
+        const CharacterType = Object.freeze({
+            ALLY: "Ally",
+            ENEMY: "Enemy"
+        });
+
+        const ItemTarget = Object.freeze({
+            SELF: "Self",
+            ALLY: "Ally",
+            ENEMY: "Enemy"
+        });
+
         class Character {
-            constructor (name, type, hp, sp, attack, defense, speed) {
+            constructor (name, type, hp, sp, attack, defense, speed, skills) {
                 this.name = name;
                 this.type = type;
                 this.curr_hp = hp;
@@ -66,8 +77,25 @@
                 this.base_attack = attack;
                 this.base_defense = defense;
                 this.base_speed = speed;
+                this.skills = skills;
                 this.is_alive = true;
                 this.effect = [];
+            }
+
+            modifyHealth (amount) {
+                this.curr_hp += amount;
+                this.is_alive = (this.curr_hp <= 0);
+
+                if (this.curr_hp > this.max_hp) this.curr_hp = this.max_hp;
+                else if (this.curr_hp < 0) this.curr_hp = 0;
+            }
+
+            applyDamage (amount) {
+                this.modifyHealth(-amount);
+            }
+
+            applyHeal (amount) {
+                this.modifyHealth(amount);
             }
         }
 
@@ -89,40 +117,46 @@
             }
 
             use (user, target) {
-                on_use_handler(user, target);
+                return this.on_use_handler(user, target);
             }
         }
 
         const BattleManager = {
-            acting_character: {
-                name: "Alicia",
-                curr_hp: 200,
-                max_hp: 240,
-                attack: 32,
-                defense: 32,
-                speed: 110,
-                skills: [
+            allies : [
+                new Character("Alicia", CharacterType.ALLY, 240, 30, 32, 32, 110, [
                     "Plasma Ball",
                     "Light Arrow",
                     "Mana Enchant"
-                ]
-            },
-            targets: [
-                // This is just placeholder
-                "Skeleton A",
-                "Skeleton B",
-                "Skeleton C"
+                ]),
             ],
+            enemies : [
+                new Character("Skeleton", CharacterType.ENEMY, 110, 0, 15, 15, 100, []),
+                new Character("Skeleton", CharacterType.ENEMY, 110, 0, 15, 15, 100, []),
+                new Character("Skeleton", CharacterType.ENEMY, 110, 0, 15, 15, 100, []),
+            ],
+            acting_character: null,
             items: [
-                // This is just placeholder
-                "Healing Kit A",
-                "Healing Kit A",
-                "Attack Boost Kit A"
+                new Item("Healing Kit A", ItemEffect.HEAL, ItemTarget.ALLY, (user, target) => {
+                    heal_power = Math.floor(0.2 * target.max_hp);
+                    target.applyHeal(heal_power);
+                    return heal_power;
+                }),
+                new Item("Healing Kit A", ItemEffect.HEAL, ItemTarget.ALLY, (user, target) => {
+                    heal_power = Math.floor(0.2 * target.max_hp);
+                    target.applyHeal(heal_power);
+                    return heal_power;
+                }),
+                new Item("Healing Kit A", ItemEffect.HEAL, ItemTarget.ALLY, (user, target) => {
+                    heal_power = Math.floor(0.2 * target.max_hp);
+                    target.applyHeal(heal_power);
+                    return heal_power;
+                }),
             ]
         }
 
         const UIManager = {
             init() {
+                
                 actionBar.children[0].onclick = () => this.showTargets("Basic Attack");;
                 actionBar.children[1].onclick = () => this.showSkills();
                 actionBar.children[2].onclick = () => this.showItems();
@@ -131,9 +165,9 @@
                     logDiv.innerHTML = `
                     ${acting_character.name}<br>
                     HP &emsp; ${acting_character.curr_hp}/${acting_character.max_hp}<br>
-                    ATK &emsp; ${acting_character.attack}<br>
-                    DEF &emsp; ${acting_character.defense}<br>
-                    SPD &emsp; ${acting_character.speed}`;
+                    ATK &emsp; ${acting_character.base_attack}<br>
+                    DEF &emsp; ${acting_character.base_defense}<br>
+                    SPD &emsp; ${acting_character.base_speed}`;
                     this.clearInfoBarOptions();
                 }
             },
@@ -177,10 +211,13 @@
                 this.updateLog("Choose your item:");
                 BattleManager.items.forEach((item, idx) => {
                     const button = document.createElement("button");
-                    button.textContent = item;
+                    button.textContent = item.name;
                     button.className = "option-button";
                     button.onclick = () => {
-                        logDiv.textContent = `${BattleManager.acting_character.name} uses ${item}!`;
+                        const user = BattleManager.acting_character;
+                        const target = user;
+                        const result = item.use(user, target);
+                        logDiv.textContent = `${user.name} uses ${item.name} and gains ${result} HP!`;
                         BattleManager.items.splice(idx, 1);
                         this.clearInfoBarOptions();
                         Array.from(actionBar.children).forEach(button => {
@@ -204,6 +241,8 @@
             }
         }
 
+        BattleManager.acting_character = BattleManager.allies[0];
+        BattleManager.acting_character.applyDamage(200);
         UIManager.init();
     </script>
 </body>
