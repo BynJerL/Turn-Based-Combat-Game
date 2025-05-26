@@ -61,22 +61,18 @@
                     "Mana Enchant"
                 ]
             },
-            get targets () {
+            targets: [
                 // This is just placeholder
-                return [
-                    "Skeleton A",
-                    "Skeleton B",
-                    "Skeleton C"
-                ]
-            },
-            get items () {
+                "Skeleton A",
+                "Skeleton B",
+                "Skeleton C"
+            ],
+            items: [
                 // This is just placeholder
-                return [
-                    "Healing Kit A",
-                    "Healing Kit A",
-                    "Attack Boost Kit A"
-                ]
-            }
+                "Healing Kit A",
+                "Healing Kit A",
+                "Attack Boost Kit A"
+            ]
         }
 
         const UIManager = {
@@ -131,12 +127,13 @@
             showItems() {
                 this.clearInfoBarOptions();
                 this.updateLog("Choose your item:");
-                BattleManager.items.forEach(item => {
+                BattleManager.items.forEach((item, idx) => {
                     const button = document.createElement("button");
                     button.textContent = item;
                     button.className = "option-button";
                     button.onclick = () => {
                         logDiv.textContent = `${BattleManager.acting_character.name} uses ${item}!`;
+                        BattleManager.items.splice(idx, 1);
                         this.clearInfoBarOptions();
                         Array.from(actionBar.children).forEach(button => {
                             button.disabled = true;
