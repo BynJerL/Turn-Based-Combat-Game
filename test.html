@@ -81,10 +81,15 @@
         }
 
         class Item {
-            constructor (name, effect, target) {
+            constructor (name, effect, target, on_use_handler) {
                 this.name = name;
                 this.effect = effect;
                 this.target = target;
+                this.on_use_handler = on_use_handler;
+            }
+
+            use (user, target) {
+                on_use_handler(user, target);
             }
         }
 
