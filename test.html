@@ -20,6 +20,7 @@
             height: 80px;
             border: 3px solid black;
             padding: 5px;
+            overflow: auto;
         }
 
         #next-button {
@@ -85,7 +86,9 @@
                     logDiv.innerHTML = `
                     ${acting_character.name}<br>
                     HP &emsp; ${acting_character.curr_hp}/${acting_character.max_hp}<br>
-                    ATK &emsp; ${acting_character.attack}`;
+                    ATK &emsp; ${acting_character.attack}<br>
+                    DEF &emsp; ${acting_character.defense}<br>
+                    SPD &emsp; ${acting_character.speed}`;
                     this.clearInfoBarOptions();
                 }
             },
