@@ -124,9 +124,9 @@
         const BattleManager = {
             allies : [
                 new Character("Alicia", CharacterType.ALLY, 240, 30, 32, 32, 110, [
-                    "Plasma Ball",
-                    "Light Arrow",
-                    "Mana Enchant"
+                    new Skill("Plasma Ball"),
+                    new Skill("Light Arrow"),
+                    new Skill("Mana Enchant")
                 ]),
             ],
             enemies : [
@@ -156,8 +156,7 @@
 
         const UIManager = {
             init() {
-                
-                actionBar.children[0].onclick = () => this.showTargets("Basic Attack");;
+                actionBar.children[0].onclick = () => this.showTargets({name: "Basic Attack"});;
                 actionBar.children[1].onclick = () => this.showSkills();
                 actionBar.children[2].onclick = () => this.showItems();
                 actionBar.children[3].onclick = () => {
@@ -180,12 +179,12 @@
             showTargets(action) {
                 this.clearInfoBarOptions();
                 this.updateLog("Pick your target:");
-                BattleManager.targets.forEach(target => {
+                BattleManager.enemies.forEach(target => {
                     const button = document.createElement('button');
-                    button.textContent = target;
+                    button.textContent = target.name;
                     button.className = "option-button";
                     button.onclick = () => {
-                        logDiv.textContent = `${BattleManager.acting_character.name} uses ${action} on ${target}!`;
+                        logDiv.textContent = `${BattleManager.acting_character.name} uses ${action.name} on ${target.name}!`;
                         this.clearInfoBarOptions();
                         Array.from(actionBar.children).forEach(button => {
                             button.disabled = true;
@@ -200,7 +199,7 @@
                 this.updateLog("Choose your skill:");
                 BattleManager.acting_character.skills.forEach(skill => {
                     const button = document.createElement("button");
-                    button.textContent = skill;
+                    button.textContent = skill.name;
                     button.className = "option-button";
                     button.onclick = () => {this.showTargets(skill)};
                     infoBar.appendChild(button);
