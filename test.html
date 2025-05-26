@@ -48,6 +48,46 @@
         const actionBar = document.getElementById("action-bar");
         const infoBar = document.getElementById("info-bar");
 
+        const ItemEffect = Object.freeze({
+            HEAL: "Heal",
+            ATTACK_BOOST: "Attack Boost",
+            DEFENSE_BOOST: "Defense Boost",
+            SPEED_BOOST: "Speed Boost"
+        });
+
+        class Character {
+            constructor (name, type, hp, sp, attack, defense, speed) {
+                this.name = name;
+                this.type = type;
+                this.curr_hp = hp;
+                this.max_hp = hp;
+                this.curr_sp = sp;
+                this.max_sp = sp;
+                this.base_attack = attack;
+                this.base_defense = defense;
+                this.base_speed = speed;
+                this.is_alive = true;
+                this.effect = [];
+            }
+        }
+
+        class Skill {
+            constructor (name, type, cost, power) {
+                this.name = name;
+                this.type = type;
+                this.cost = cost;
+                this.power = power;
+            }
+        }
+
+        class Item {
+            constructor (name, effect, target) {
+                this.name = name;
+                this.effect = effect;
+                this.target = target;
+            }
+        }
+
         const BattleManager = {
             acting_character: {
                 name: "Alicia",
@@ -147,7 +187,7 @@
                 });
             },
             showNextButton() {
-                this.updateLog("Click \"Next\" to Continue.");
+                logDiv.innerHTML = logDiv.innerHTML + "<br>Click \"Next\" to Continue"
                 nextBtn.style.display = "block";
                 nextBtn.onclick = () => {
                     this.updateLog("Select any action below");
