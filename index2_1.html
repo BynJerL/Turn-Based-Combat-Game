@@ -192,7 +192,7 @@
                 <button class="action-button">Use Skill</button>
                 <button class="action-button">Use Item</button>
                 <button class="action-button">Check Info</button>
-                <button class="action-button">Retreat</button>
+                <button class="action-button">Flee</button>
             </section>
         </section>
     </section>
@@ -308,10 +308,10 @@
             init () {
                 logBar.textContent = "Choose your action";
                 actionButtons[0].onclick = () => {
-                    logBar.textContent = "Basic Attack - Choose your target"
+                    logBar.textContent = "Basic Attack - Choose your target";
                     this.showTargets()}; 
                 actionButtons[1].onclick = () => {
-                    logBar.textContent = "Defend"
+                    logBar.textContent = "Defend";
                     this.showDefenseConfirmation()};
                 actionButtons[2].onclick = () => {
                     logBar.textContent = "Choose your skill";
@@ -320,8 +320,12 @@
                     logBar.textContent = "Choose your item";
                     this.showItems()};
                 actionButtons[4].onclick = () => {
-                    logBar.textContent = "Character info"
+                    logBar.textContent = "Character info";
                     this.showCharacterInfo()};
+                actionButtons[5].onclick = () => {
+                    logBar.textContent = "Flee status";
+                    this.showFleeAttemptResult();
+                }
                 this.initTeamDisplay();
             },
             initTeamDisplay () {
@@ -372,6 +376,16 @@
                 actionButtons.forEach(button => button.disabled = true);
                 nextButton.disabled = false;
                 optionBar.innerHTML = `${BattleManager.acting_character.name} chooses to defend.`;
+            },
+            showFleeAttemptResult () {
+                actionButtons.forEach(button => button.disabled = true);
+                nextButton.disabled = false;
+                const result = (Math.random() <= 0.20);
+                if (result) {
+                    optionBar.innerHTML = "You have successfully flee the battleground.";
+                } else {
+                    optionBar.innerHTML = "You have failed to flee the battleground.";
+                }
             }
         };
 
