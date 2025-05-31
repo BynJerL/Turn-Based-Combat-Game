@@ -232,6 +232,15 @@
             }
         }
 
+        class Item {
+            /**
+             * @param {string} name
+             */
+            constructor (name) {
+                this.name = name;
+            }
+        }
+
         const BattleManager = {
             ally_team: [
                 new Character("A1", CharacterType.ALLY, 180, 20, 20, 20, 120),
@@ -247,6 +256,13 @@
                 new Character("E6", CharacterType.ENEMY, 100, 2, 10, 10, 107),
                 new Character("E7", CharacterType.ENEMY, 100, 2, 10, 10, 106),
             ],
+            items: [
+                new Item("Item 1"),
+                new Item("Item 2"),
+                new Item("Item 3"),
+                new Item("Item 4"),
+                new Item("Item 5"),
+            ],
             acting_character : null,
             turn_queue : [],
             updateTurnQueue() {
@@ -260,6 +276,7 @@
         const UIManager = {
             init () {
                 actionButtons[0].onclick = () => this.showTargets(); 
+                actionButtons[3].onclick = () => this.showItems(); 
                 this.initTeamDisplay();
             },
             initTeamDisplay () {
@@ -286,6 +303,11 @@
                 optionBar.innerHTML = BattleManager.enemy_team.filter(chara => chara.is_alive).map(
                     chara => `<button class="option">${chara.name}</button>`
                 ).join('');
+            },
+            showItems () {
+                optionBar.innerHTML = BattleManager.items.map(
+                    item => `<button class="option">${item.name}</button>`
+                ).join("");
             }
         };
 
