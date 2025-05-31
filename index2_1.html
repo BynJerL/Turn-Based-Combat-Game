@@ -84,6 +84,8 @@
         }
 
         .character-bar {
+            display: flex;
+            gap: 5px;
             background-color: lightgreen;
             width: 180px;
             height: 60px;
@@ -107,6 +109,29 @@
         .queue-item {
             height: 14px;
             background-color: lightsteelblue;
+        }
+
+        .act-chara-pic {
+            background-color: mediumorchid;
+            width: 50px;
+            height: 50px;
+        }
+
+        .act-chara-name {
+            font-weight: 600;
+        }
+
+        .property-bar {
+            display: flex;
+            gap: 5px;
+        }
+
+        .property-name {
+            width: 15px;
+        }
+
+        .property-value {
+            font-style: italic;
         }
     </style>
 </head>
@@ -132,7 +157,20 @@
             </div>
         </section>
         <section class="bottom-bar">
-            <section class="character-bar">Character Info</section>
+            <section class="character-bar">
+                <div class="act-chara-pic">Acting Character Picture</div>
+                <div class="act-chara-info">
+                    <div class="act-chara-name"></div>
+                    <div class="act-chara-hp property-bar">
+                        <div class="property-name">HP</div>
+                        <div class="property-value"></div>
+                    </div>
+                    <div class="act-chara-sp property-bar">
+                        <div class="property-name">SP</div>
+                        <div class="property-value"></div>
+                    </div>
+                </div>
+            </section>
             <section class="action-bar">Actions</section>
         </section>
     </section>
@@ -174,9 +212,13 @@
                 new Character("E6", CharacterType.ENEMY, 100, 2, 10, 10, 107),
                 new Character("E7", CharacterType.ENEMY, 100, 2, 10, 10, 106),
             ],
+            acting_character : null,
             turn_queue : [],
             updateTurnQueue() {
                 this.turn_queue = [].concat(this.ally_team, this.enemy_team).sort(function(a, b) {return b.speed - a.speed});
+            },
+            updateActingCharacter() {
+                this.acting_character = this.turn_queue[0];
             }
         };
 
@@ -198,10 +240,17 @@
         ).join('');
 
         BattleManager.updateTurnQueue();
+        BattleManager.updateActingCharacter();
 
         queueBar.innerHTML = BattleManager.turn_queue.map(
             chara => `<div class="queue-item">${chara.name}</div>`
         ).join('');
+
+        const acting_character = BattleManager.acting_character;
+        document.querySelector(".act-chara-name").textContent = acting_character.name;
+        document.querySelector(".act-chara-hp .property-value").textContent = `${acting_character.curr_hp}/${acting_character.max_hp}`;
+        document.querySelector(".act-chara-sp .property-value").textContent = `${acting_character.curr_sp}/${acting_character.max_sp}`;
+
     </script>
 </body>
 </html>
