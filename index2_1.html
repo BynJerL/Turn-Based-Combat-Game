@@ -292,7 +292,8 @@
             init () {
                 actionButtons[0].onclick = () => this.showTargets(); 
                 actionButtons[2].onclick = () => this.showSkills();
-                actionButtons[3].onclick = () => this.showItems(); 
+                actionButtons[3].onclick = () => this.showItems();
+                actionButtons[4].onclick = () => this.showCharacterInfo();
                 this.initTeamDisplay();
             },
             initTeamDisplay () {
@@ -330,6 +331,15 @@
                     item => `<button class="option">${item.name}</button>`
                 ).join("");
             },
+            showCharacterInfo () {
+                const acting_character = BattleManager.acting_character;
+                optionBar.innerHTML = `
+                    ${acting_character.name}<br>
+                    HP &emsp; ${acting_character.curr_hp}/${acting_character.max_hp}<br>
+                    ATK &emsp; ${acting_character.attack}<br>
+                    DEF &emsp; ${acting_character.defense}<br>
+                    SPD &emsp; ${acting_character.speed}`;
+            }
         };
 
         BattleManager.updateTurnQueue();
