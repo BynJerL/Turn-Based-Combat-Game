@@ -197,6 +197,11 @@
     </section>
 
     <script>
+        const allyTeamSection = document.querySelector(".ally-team");
+        const enemyTeamSection = document.querySelector(".enemy-team");
+        const optionBar = document.querySelector('.option-bar');
+        const queueBar = document.querySelector(".queue-bar");
+
         const CharacterType = Object.freeze({
             ALLY: "Ally",
             ENEMY: "Enemy"
@@ -243,34 +248,38 @@
             }
         };
 
-        const allyTeamSection = document.querySelector(".ally-team");
-        const enemyTeamSection = document.querySelector(".enemy-team");
-        const optionBar = document.querySelector('.option-bar');
-        const queueBar = document.querySelector(".queue-bar");
+        const UIManager = {
+            init () {
+                allyTeamSection.innerHTML = BattleManager.ally_team.map(
+                    chara => `<div class="character-card">${chara.name}</div>`
+                ).join('');
 
-        allyTeamSection.innerHTML = BattleManager.ally_team.map(
-            chara => `<div class="character-card">${chara.name}</div>`
-        ).join('');
+                enemyTeamSection.innerHTML = BattleManager.enemy_team.map(
+                    chara => `<div class="character-card">${chara.name}</div>`
+                ).join('');
+            },
+            updateActingCharacter () {
+                const acting_character = BattleManager.acting_character;
+                document.querySelector(".act-chara-name").textContent = acting_character.name;
+                document.querySelector(".act-chara-hp .property-value").textContent = `${acting_character.curr_hp}/${acting_character.max_hp}`;
+                document.querySelector(".act-chara-sp .property-value").textContent = `${acting_character.curr_sp}/${acting_character.max_sp}`;
+            },
+            updateTurnQueue () {
+                queueBar.innerHTML = BattleManager.turn_queue.map(
+                    chara => `<div class="queue-item">${chara.name}</div>`
+                ).join('');
+            }
+        };
 
-        enemyTeamSection.innerHTML = BattleManager.enemy_team.map(
-            chara => `<div class="character-card">${chara.name}</div>`
-        ).join('');
+        BattleManager.updateTurnQueue();
+        BattleManager.updateActingCharacter();
+        UIManager.init();
+        UIManager.updateTurnQueue();
+        UIManager.updateActingCharacter();
 
         optionBar.innerHTML = BattleManager.enemy_team.map(
             chara => `<button class="option">${chara.name}</button>`
         ).join('');
-
-        BattleManager.updateTurnQueue();
-        BattleManager.updateActingCharacter();
-
-        queueBar.innerHTML = BattleManager.turn_queue.map(
-            chara => `<div class="queue-item">${chara.name}</div>`
-        ).join('');
-
-        const acting_character = BattleManager.acting_character;
-        document.querySelector(".act-chara-name").textContent = acting_character.name;
-        document.querySelector(".act-chara-hp .property-value").textContent = `${acting_character.curr_hp}/${acting_character.max_hp}`;
-        document.querySelector(".act-chara-sp .property-value").textContent = `${acting_character.curr_sp}/${acting_character.max_sp}`;
 
     </script>
 </body>
