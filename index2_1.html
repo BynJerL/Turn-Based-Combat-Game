@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Template</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+        }
+
+        button {
+            font-size: 11px;
+        }
+
+        .container {
+            width: 300px;
+            background-color: coral;
+        }
+
+        .top-bar {
+            height: 30px;
+            background-color: aquamarine;
+        }
+
+        .stage-bar {
+            height: 200px;
+            display: flex;
+            background-color: bisque;
+        }
+
+        .queue-bar {
+            display: flex;
+            flex-direction: column;
+            width: 50px;
+            background-color: chartreuse;
+            gap: 1px;
+        }
+
+        .ally-team {
+            width: 100px;
+            background-color: cornflowerblue;
+        }
+        
+        .enemy-team {
+            width: 150px;
+            background-color: darkorange;
+        }
+
+        .info-bar {
+            height: 85px;
+            background-color: fuchsia;
+        }
+
+        .option-bar {
+            height: 46px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 5px;
+            background-color: darkkhaki;
+            overflow: auto;
+        }
+
+        .option {
+            width: 90px;
+        }
+
+        .bottom-info-bar {
+            height: 20px;
+            display: flex;
+            justify-content: space-between;
+            /* align-items: center; */
+            background-color: darksalmon;
+        }
+
+        .action-info {
+            width: 250px;
+        }
+
+        .bottom-bar {
+            display: flex;
+        }
+
+        .character-bar {
+            background-color: lightgreen;
+            width: 180px;
+            height: 60px;
+        }
+
+        .character-card {
+            background-color: gold;
+            width: 40px;
+            height: 45px;
+        }
+
+        .team-display {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .queue-item {
+            height: 14px;
+            background-color: lightsteelblue;
+        }
+    </style>
+</head>
+<body>
+    <section class="container">
+        <section class="top-bar">Top Bar</section>
+        <section class="stage-bar">
+            <section class="queue-bar">Queue</section>
+            <section class="ally-team team-display">Ally Team</section>
+            <section class="enemy-team team-display">Enemy Team</section>
+        </section>
+        <section class="info-bar">
+            <div class="log-bar">Log</div>
+            <div class="option-bar">
+                <button class="option">Option 1</button>
+                <button class="option">Option 2</button>
+                <button class="option">Option 3</button>
+                <button class="option">Option 4</button>
+            </div>
+            <div class="bottom-info-bar">
+                <div class="action-info">Action Info</div>
+                <button class="next-button">Next</button>
+            </div>
+        </section>
+        <section class="bottom-bar">
+            <section class="character-bar">Character Info</section>
+            <section class="action-bar">Actions</section>
+        </section>
+    </section>
+
+    <script>
+        const CharacterType = Object.freeze({
+            ALLY: "Ally",
+            ENEMY: "Enemy"
+        })
+
+        class Character {
+            /** @param {string} name, @param {CharacterType} type*/
+            constructor (name, type, speed) {
+                this.name = name;
+                this.type = type;
+                this.speed = speed
+                this.is_alive = true;
+            }
+        }
+
+        const BattleManager = {
+            ally_team: [
+                new Character("A1", CharacterType.ALLY, 120),
+                new Character("A2", CharacterType.ALLY, 115),
+                new Character("A3", CharacterType.ALLY, 110),
+            ],
+            enemy_team: [
+                new Character("E1", CharacterType.ENEMY, 112),
+                new Character("E2", CharacterType.ENEMY, 111),
+                new Character("E3", CharacterType.ENEMY, 110),
+                new Character("E4", CharacterType.ENEMY, 109),
+                new Character("E5", CharacterType.ENEMY, 108),
+                new Character("E6", CharacterType.ENEMY, 107),
+                new Character("E7", CharacterType.ENEMY, 106),
+            ],
+            turn_queue : [],
+            updateTurnQueue() {
+                this.turn_queue = [].concat(this.ally_team, this.enemy_team).sort(function(a, b) {return b.speed - a.speed});
+            }
+        };
+
+        const allyTeamSection = document.querySelector(".ally-team");
+        const enemyTeamSection = document.querySelector(".enemy-team");
+        const optionBar = document.querySelector('.option-bar');
+        const queueBar = document.querySelector(".queue-bar");
+
+        allyTeamSection.innerHTML = BattleManager.ally_team.map(
+            chara => `<div class="character-card">${chara.name}</div>`
+        ).join('');
+
+        enemyTeamSection.innerHTML = BattleManager.enemy_team.map(
+            chara => `<div class="character-card">${chara.name}</div>`
+        ).join('');
+
+        optionBar.innerHTML = BattleManager.enemy_team.map(
+            chara => `<button class="option">${chara.name}</button>`
+        ).join('');
+
+        BattleManager.updateTurnQueue();
+
+        queueBar.innerHTML = BattleManager.turn_queue.map(
+            chara => `<div class="queue-item">${chara.name}</div>`
+        ).join('');
+    </script>
+</body>
+</html>
