@@ -200,6 +200,7 @@
     <script>
         const allyTeamSection = document.querySelector(".ally-team");
         const enemyTeamSection = document.querySelector(".enemy-team");
+        const logBar = document.querySelector(".log-bar");
         const optionBar = document.querySelector('.option-bar');
         const queueBar = document.querySelector(".queue-bar");
         const actionButtons = document.querySelectorAll(".action-button");
@@ -290,10 +291,19 @@
 
         const UIManager = {
             init () {
-                actionButtons[0].onclick = () => this.showTargets(); 
-                actionButtons[2].onclick = () => this.showSkills();
-                actionButtons[3].onclick = () => this.showItems();
-                actionButtons[4].onclick = () => this.showCharacterInfo();
+                logBar.textContent = "Choose your action";
+                actionButtons[0].onclick = () => {
+                    logBar.textContent = "Basic Attack - Choose your target"
+                    this.showTargets()}; 
+                actionButtons[2].onclick = () => {
+                    logBar.textContent = "Choose your skill";
+                    this.showSkills()};
+                actionButtons[3].onclick = () => {
+                    logBar.textContent = "Choose your item";
+                    this.showItems()};
+                actionButtons[4].onclick = () => {
+                    logBar.textContent = "Character info"
+                    this.showCharacterInfo()};
                 this.initTeamDisplay();
             },
             initTeamDisplay () {
