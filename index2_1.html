@@ -203,6 +203,7 @@
         const logBar = document.querySelector(".log-bar");
         const optionBar = document.querySelector('.option-bar');
         const queueBar = document.querySelector(".queue-bar");
+        const nextButton = document.querySelector(".next-button");
         const actionButtons = document.querySelectorAll(".action-button");
 
         const CharacterType = Object.freeze({
@@ -231,11 +232,24 @@
                 this.defense = defense;
                 this.speed = speed
                 this.is_alive = true;
+                this.is_defending = false;
                 this.skills = [
                     new Skill("Skill 1"),
                     new Skill("Skill 2"),
                     new Skill("Ultimate"),
                 ];
+            }
+
+            isDefend () {
+                return this.is_defending;
+            }
+
+            enableDefense () {
+                this.is_defending = true;
+            }
+
+            disableDefense () {
+                this.is_defending = false;
             }
         }
 
@@ -286,6 +300,7 @@
             },
             updateActingCharacter() {
                 this.acting_character = this.turn_queue[0];
+                this.acting_character.disableDefense();
             }
         };
 
@@ -295,6 +310,9 @@
                 actionButtons[0].onclick = () => {
                     logBar.textContent = "Basic Attack - Choose your target"
                     this.showTargets()}; 
+                actionButtons[1].onclick = () => {
+                    logBar.textContent = "Defend"
+                    this.showDefenseConfirmation()};
                 actionButtons[2].onclick = () => {
                     logBar.textContent = "Choose your skill";
                     this.showSkills()};
@@ -349,6 +367,11 @@
                     ATK &emsp; ${acting_character.attack}<br>
                     DEF &emsp; ${acting_character.defense}<br>
                     SPD &emsp; ${acting_character.speed}`;
+            },
+            showDefenseConfirmation () {
+                actionButtons.forEach(button => button.disabled = true);
+                nextButton.disabled = false;
+                optionBar.innerHTML = `${BattleManager.acting_character.name} chooses to defend.`;
             }
         };
 
