@@ -201,6 +201,7 @@
         const enemyTeamSection = document.querySelector(".enemy-team");
         const optionBar = document.querySelector('.option-bar');
         const queueBar = document.querySelector(".queue-bar");
+        const actionButtons = document.querySelectorAll(".action-button");
 
         const CharacterType = Object.freeze({
             ALLY: "Ally",
@@ -208,7 +209,15 @@
         })
 
         class Character {
-            /** @param {string} name, @param {CharacterType} type*/
+            /** 
+             * @param {string} name,
+             * @param {CharacterType} type, 
+             * @param {number} hp, 
+             * @param {number} sp, 
+             * @param {number} attack, 
+             * @param {number} defense, 
+             * @param {number} speed
+             * */
             constructor (name, type, hp, sp, attack, defense, speed) {
                 this.name = name;
                 this.type = type;
@@ -250,6 +259,10 @@
 
         const UIManager = {
             init () {
+                actionButtons[0].onclick = () => this.showTargets(); 
+                this.initTeamDisplay();
+            },
+            initTeamDisplay () {
                 allyTeamSection.innerHTML = BattleManager.ally_team.map(
                     chara => `<div class="character-card">${chara.name}</div>`
                 ).join('');
@@ -268,6 +281,11 @@
                 queueBar.innerHTML = BattleManager.turn_queue.map(
                     chara => `<div class="queue-item">${chara.name}</div>`
                 ).join('');
+            },
+            showTargets () {
+                optionBar.innerHTML = BattleManager.enemy_team.filter(chara => chara.is_alive).map(
+                    chara => `<button class="option">${chara.name}</button>`
+                ).join('');
             }
         };
 
@@ -276,10 +294,7 @@
         UIManager.init();
         UIManager.updateTurnQueue();
         UIManager.updateActingCharacter();
-
-        optionBar.innerHTML = BattleManager.enemy_team.map(
-            chara => `<button class="option">${chara.name}</button>`
-        ).join('');
+        // UIManager.showTargets();
 
     </script>
 </body>
