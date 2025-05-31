@@ -145,9 +145,15 @@
 
         class Character {
             /** @param {string} name, @param {CharacterType} type*/
-            constructor (name, type, speed) {
+            constructor (name, type, hp, sp, attack, defense, speed) {
                 this.name = name;
                 this.type = type;
+                this.max_hp = hp;
+                this.curr_hp = hp;
+                this.max_sp = sp;
+                this.curr_sp = sp;
+                this.attack = attack;
+                this.defense = defense;
                 this.speed = speed
                 this.is_alive = true;
             }
@@ -155,18 +161,18 @@
 
         const BattleManager = {
             ally_team: [
-                new Character("A1", CharacterType.ALLY, 120),
-                new Character("A2", CharacterType.ALLY, 115),
-                new Character("A3", CharacterType.ALLY, 110),
+                new Character("A1", CharacterType.ALLY, 180, 20, 20, 20, 120),
+                new Character("A2", CharacterType.ALLY, 200, 18, 22, 22, 115),
+                new Character("A3", CharacterType.ALLY, 250, 16, 25, 24, 110),
             ],
             enemy_team: [
-                new Character("E1", CharacterType.ENEMY, 112),
-                new Character("E2", CharacterType.ENEMY, 111),
-                new Character("E3", CharacterType.ENEMY, 110),
-                new Character("E4", CharacterType.ENEMY, 109),
-                new Character("E5", CharacterType.ENEMY, 108),
-                new Character("E6", CharacterType.ENEMY, 107),
-                new Character("E7", CharacterType.ENEMY, 106),
+                new Character("E1", CharacterType.ENEMY, 80, 5, 8, 8, 112),
+                new Character("E2", CharacterType.ENEMY, 80, 5, 8, 8, 111),
+                new Character("E3", CharacterType.ENEMY, 80, 5, 8, 8, 110),
+                new Character("E4", CharacterType.ENEMY, 100, 2, 10, 10, 109),
+                new Character("E5", CharacterType.ENEMY, 100, 2, 10, 10, 108),
+                new Character("E6", CharacterType.ENEMY, 100, 2, 10, 10, 107),
+                new Character("E7", CharacterType.ENEMY, 100, 2, 10, 10, 106),
             ],
             turn_queue : [],
             updateTurnQueue() {
