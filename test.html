@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #bottom-menu {
+            display: flex;
+            flex-direction: column;
+            width: 320px;
+            background-color: yellow;
+        }
+
+        #info-bar {
+            height: 80px;
+            border: 3px solid black;
+            padding: 5px;
+            overflow: auto;
+        }
+
+        #next-button {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <section id="bottom-menu">
+        <div id="info-bar">
+            <div id="log">Select any action below</div>
+            <button id="next-button">Next</button>
+        </div>
+        <div id="action-bar">
+            <button>Basic Attack</button>
+            <button>Use Skill</button>
+            <button>Use Item</button>
+            <button>Check Info</button>
+        </div>
+    </section>
+
+    <script>
+        const logDiv = document.getElementById("log");
+        const nextBtn = document.getElementById("next-button");
+        const actionBar = document.getElementById("action-bar");
+        const infoBar = document.getElementById("info-bar");
+
+        const ItemEffect = Object.freeze({
+            HEAL: "Heal",
+            ATTACK_BOOST: "Attack Boost",
+            DEFENSE_BOOST: "Defense Boost",
+            SPEED_BOOST: "Speed Boost"
+        });
+
+        const CharacterType = Object.freeze({
+            ALLY: "Ally",
+            ENEMY: "Enemy"
+        });
+
+        const ItemTarget = Object.freeze({
+            SELF: "Self",
+            ALLY: "Ally",
+            ENEMY: "Enemy"
+        });
+
+        class Character {
+            constructor (name, type, hp, sp, attack, defense, speed, skills) {
+                this.name = name;
+                this.type = type;
+                this.curr_hp = hp;
+                this.max_hp = hp;
+                this.curr_sp = sp;
+                this.max_sp = sp;
+                this.base_attack = attack;
+                this.base_defense = defense;
+                this.base_speed = speed;
+                this.skills = skills;
+                this.is_alive = true;
+                this.effect = [];
+            }
+
+            modifyHealth (amount) {
+                this.curr_hp += amount;
+                this.is_alive = (this.curr_hp <= 0);
+
+                if (this.curr_hp > this.max_hp) this.curr_hp = this.max_hp;
+                else if (this.curr_hp < 0) this.curr_hp = 0;
+            }
+
+            applyDamage (amount) {
+                this.modifyHealth(-amount);
+            }
+
+            applyHeal (amount) {
+                this.modifyHealth(amount);
+            }
+        }
+
+        class Skill {
+            constructor (name, type, cost, power) {
+                this.name = name;
+                this.type = type;
+                this.cost = cost;
+                this.power = power;
+            }
+        }
+
+        class Item {
+            constructor (name, effect, target, on_use_handler) {
+                this.name = name;
+                this.effect = effect;
+                this.target = target;
+                this.on_use_handler = on_use_handler;
+            }
+
+            use (user, target) {
+                return this.on_use_handler(user, target);
+            }
+        }
+
+        const BattleManager = {
+            allies : [
+                new Character("Alicia", CharacterType.ALLY, 240, 30, 32, 32, 110, [
+                    new Skill("Plasma Ball"),
+                    new Skill("Light Arrow"),
+                    new Skill("Mana Enchant")
+                ]),
+            ],
+            enemies : [
+                new Character("Skeleton", CharacterType.ENEMY, 110, 0, 15, 15, 100, []),
+                new Character("Skeleton", CharacterType.ENEMY, 110, 0, 15, 15, 100, []),
+                new Character("Skeleton", CharacterType.ENEMY, 110, 0, 15, 15, 100, []),
+            ],
+            acting_character: null,
+            items: [
+                new Item("Healing Kit A", ItemEffect.HEAL, ItemTarget.ALLY, (user, target) => {
+                    heal_power = Math.floor(0.2 * target.max_hp);
+                    target.applyHeal(heal_power);
+                    return heal_power;
+                }),
+                new Item("Healing Kit A", ItemEffect.HEAL, ItemTarget.ALLY, (user, target) => {
+                    heal_power = Math.floor(0.2 * target.max_hp);
+                    target.applyHeal(heal_power);
+                    return heal_power;
+                }),
+                new Item("Healing Kit A", ItemEffect.HEAL, ItemTarget.ALLY, (user, target) => {
+                    heal_power = Math.floor(0.2 * target.max_hp);
+                    target.applyHeal(heal_power);
+                    return heal_power;
+                }),
+            ]
+        }
+
+        const UIManager = {
+            init() {
+                actionBar.children[0].onclick = () => this.showTargets({name: "Basic Attack"});;
+                actionBar.children[1].onclick = () => this.showSkills();
+                actionBar.children[2].onclick = () => this.showItems();
+                actionBar.children[3].onclick = () => {
+                    const acting_character = BattleManager.acting_character;
+                    logDiv.innerHTML = `
+                    ${acting_character.name}<br>
+                    HP &emsp; ${acting_character.curr_hp}/${acting_character.max_hp}<br>
+                    ATK &emsp; ${acting_character.base_attack}<br>
+                    DEF &emsp; ${acting_character.base_defense}<br>
+                    SPD &emsp; ${acting_character.base_speed}`;
+                    this.clearInfoBarOptions();
+                }
+            },
+            updateLog(content){
+                logDiv.textContent = content;
+            },
+            clearInfoBarOptions() {
+                Array.from(infoBar.querySelectorAll('.option-button')).forEach(button => button.remove());
+            },
+            showTargets(action) {
+                this.clearInfoBarOptions();
+                this.updateLog("Pick your target:");
+                BattleManager.enemies.forEach(target => {
+                    const button = document.createElement('button');
+                    button.textContent = target.name;
+                    button.className = "option-button";
+                    button.onclick = () => {
+                        logDiv.textContent = `${BattleManager.acting_character.name} uses ${action.name} on ${target.name}!`;
+                        this.clearInfoBarOptions();
+                        Array.from(actionBar.children).forEach(button => {
+                            button.disabled = true;
+                        });
+                        this.showNextButton();
+                    }
+                    infoBar.appendChild(button);
+                });
+            },
+            showSkills() {
+                this.clearInfoBarOptions();
+                this.updateLog("Choose your skill:");
+                BattleManager.acting_character.skills.forEach(skill => {
+                    const button = document.createElement("button");
+                    button.textContent = skill.name;
+                    button.className = "option-button";
+                    button.onclick = () => {this.showTargets(skill)};
+                    infoBar.appendChild(button);
+                });
+            },
+            showItems() {
+                this.clearInfoBarOptions();
+                this.updateLog("Choose your item:");
+                BattleManager.items.forEach((item, idx) => {
+                    const button = document.createElement("button");
+                    button.textContent = item.name;
+                    button.className = "option-button";
+                    button.onclick = () => {
+                        const user = BattleManager.acting_character;
+                        const target = user;
+                        const result = item.use(user, target);
+                        logDiv.textContent = `${user.name} uses ${item.name} and gains ${result} HP!`;
+                        BattleManager.items.splice(idx, 1);
+                        this.clearInfoBarOptions();
+                        Array.from(actionBar.children).forEach(button => {
+                            button.disabled = true;
+                        });
+                        this.showNextButton();
+                    };
+                    infoBar.appendChild(button);
+                });
+            },
+            showNextButton() {
+                logDiv.innerHTML = logDiv.innerHTML + "<br>Click \"Next\" to Continue"
+                nextBtn.style.display = "block";
+                nextBtn.onclick = () => {
+                    this.updateLog("Select any action below");
+                    Array.from(actionBar.children).forEach(button => {
+                        button.disabled = false;
+                    });
+                    nextBtn.style.display = "none";
+                };
+            }
+        }
+
+        BattleManager.acting_character = BattleManager.allies[0];
+        BattleManager.acting_character.applyDamage(200);
+        UIManager.init();
+    </script>
+</body>
+</html>
