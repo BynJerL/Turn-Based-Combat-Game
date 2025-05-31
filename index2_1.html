@@ -65,6 +65,7 @@
 
         .option {
             width: 90px;
+            height: 20px;
         }
 
         .bottom-info-bar {
@@ -229,10 +230,24 @@
                 this.defense = defense;
                 this.speed = speed
                 this.is_alive = true;
+                this.skills = [
+                    new Skill("Skill 1"),
+                    new Skill("Skill 2"),
+                    new Skill("Ultimate"),
+                ];
             }
         }
 
         class Item {
+            /**
+             * @param {string} name
+             */
+            constructor (name) {
+                this.name = name;
+            }
+        }
+
+        class Skill {
             /**
              * @param {string} name
              */
@@ -276,6 +291,7 @@
         const UIManager = {
             init () {
                 actionButtons[0].onclick = () => this.showTargets(); 
+                actionButtons[2].onclick = () => this.showSkills();
                 actionButtons[3].onclick = () => this.showItems(); 
                 this.initTeamDisplay();
             },
@@ -304,11 +320,16 @@
                     chara => `<button class="option">${chara.name}</button>`
                 ).join('');
             },
+            showSkills () {
+                optionBar.innerHTML = BattleManager.acting_character.skills.map(
+                    skill => `<button class="option">${skill.name}</button>`
+                ).join("");
+            },
             showItems () {
                 optionBar.innerHTML = BattleManager.items.map(
                     item => `<button class="option">${item.name}</button>`
                 ).join("");
-            }
+            },
         };
 
         BattleManager.updateTurnQueue();
