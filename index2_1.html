@@ -86,6 +86,7 @@
         .character-bar {
             display: flex;
             gap: 5px;
+            align-items: c;
             background-color: lightgreen;
             width: 180px;
             height: 60px;
@@ -133,6 +134,19 @@
         .property-value {
             font-style: italic;
         }
+
+        .action-bar {
+            background-color: lightyellow;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 120px;
+        }
+
+        .action-button {
+            font-size: 9px;
+            width: 40px;
+        }
     </style>
 </head>
 <body>
@@ -153,7 +167,7 @@
             </div>
             <div class="bottom-info-bar">
                 <div class="action-info">Action Info</div>
-                <button class="next-button">Next</button>
+                <button class="next-button" disabled>Next</button>
             </div>
         </section>
         <section class="bottom-bar">
@@ -171,7 +185,14 @@
                     </div>
                 </div>
             </section>
-            <section class="action-bar">Actions</section>
+            <section class="action-bar">
+                <button class="action-button">Basic Attack</button>
+                <button class="action-button">Defend</button>
+                <button class="action-button">Use Skill</button>
+                <button class="action-button">Use Item</button>
+                <button class="action-button">Check Info</button>
+                <button class="action-button">Retreat</button>
+            </section>
         </section>
     </section>
 
